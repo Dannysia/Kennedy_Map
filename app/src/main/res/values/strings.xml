@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Kennedy_Map</string>
+    <string name="title"><![CDATA[Engineering Building Navigation & Scheduling]]></string>
 </resources>
