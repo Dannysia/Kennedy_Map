@@ -10,10 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kennedy_Map">
         <activity
-            android:name=".MainScreen"
+            android:name=".MenuScreen"
             android:exported="true" />
         <activity
-            android:name=".TitleScreen"
+            android:name=".LoginScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
