@@ -4,11 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class MainScreen extends AppCompatActivity {
+public class ReservationScreen extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_screen);
+        setTitle("Reservation Screen             ");
+        setContentView(R.layout.reservation_screen);
     }
+
+
 }
