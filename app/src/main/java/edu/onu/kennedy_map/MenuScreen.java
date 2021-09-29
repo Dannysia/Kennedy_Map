@@ -54,12 +54,12 @@ public class MenuScreen extends AppCompatActivity {
     // ------------------------------- Reserve Button and Navigate Buttons --------------------------------------
 
     public void reservationButton(View view){
-        //TODO make sure to keep passing along User
+        //TODO make sure to keep passing along User, make sure guest cannot enter this screen
         Intent intent = new Intent(MenuScreen.this, ReservationScreen.class);
         startActivity(intent);
     }
     public void pathFindButton(View view){
-        //TODO make sure to keep passing along User
+        //TODO make sure to keep passing along User, even though it doesn't matter here you will want to pass it back
         Intent intent = new Intent(MenuScreen.this, PathScreen.class);
         startActivity(intent);
     }
@@ -79,6 +79,7 @@ public class MenuScreen extends AppCompatActivity {
                 logout();
                 Intent intent2 = new Intent(this, LoginScreen.class);
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent2.putExtra("user",authenticatedUser);
                 startActivity(intent2);
                 return true;
             default:

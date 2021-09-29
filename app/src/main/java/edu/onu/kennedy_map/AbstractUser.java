@@ -1,6 +1,8 @@
 package edu.onu.kennedy_map;
 
-public abstract class AbstractUser {
+import java.io.Serializable;
+
+public abstract class AbstractUser implements Serializable {
     private String username;
     private int userID;
 
