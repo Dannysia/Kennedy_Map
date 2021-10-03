@@ -256,7 +256,8 @@
             android:id="@+id/forgotPasswordLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <Space
                 android:layout_width="match_parent"
@@ -337,7 +338,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <Space
                 android:layout_width="match_parent"
@@ -458,12 +459,14 @@
                     android:gravity="center"
                     android:text="I am a..."
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:visibility="gone" />
 
                 <RadioGroup
                     android:id="@+id/studentTeacherRadioGroup"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
 
                     <RadioButton
                         android:id="@+id/studentRadioButton"

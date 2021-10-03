@@ -82,7 +82,7 @@
             </RadioGroup>
         </LinearLayout>
 
-        <FrameLayout
+        <edu.onu.kennedy_map.MapZoomAndPanLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -93,7 +93,31 @@
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:src="@drawable/engineering_floor_one" />
-        </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button3"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="+" />
+
+                <Button
+                    android:id="@+id/button4"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="-" />
+            </LinearLayout>
+
+        </edu.onu.kennedy_map.MapZoomAndPanLayout>
 
         <TextView
             android:id="@+id/floorDescriptionTextView"

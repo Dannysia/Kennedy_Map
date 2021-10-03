@@ -25,6 +25,8 @@ import java.util.Date;
 
 public class ReservationScreen extends AppCompatActivity {
 
+
+
     AbstractUser authenticatedUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +46,7 @@ public class ReservationScreen extends AppCompatActivity {
         rooms.add("Test6");
         rooms.add("Test7");
         rooms.add("Test8");
-        PickerUI roomPicker = (PickerUI) findViewById(R.id.picker_ui_view);
+        PickerUI roomPicker = (PickerUI)findViewById(R.id.picker_ui_view);
         PickerUISettings pickerUISettings = new PickerUISettings.Builder()
                 .withItems(rooms)
                 .withAutoDismiss(false)
@@ -157,6 +159,7 @@ public class ReservationScreen extends AppCompatActivity {
         roomPicker.setOnClickItemPickerUIListener(new PickerUI.PickerUIItemClickListener() {
             @Override
             public void onItemClickPickerUI(int which, int position, String valueResult) {
+                //TODO: Add so where it zooms in on the room based on the selection, gonna resize all the images to 1000x1000 to do this easy
                 selectRoomButton.setText(valueResult);
             }
         });
