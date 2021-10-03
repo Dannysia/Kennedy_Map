@@ -84,7 +84,9 @@
 
         <edu.onu.kennedy_map.MapZoomAndPanLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
 
             <ImageView
                 android:id="@+id/floorImageView"
@@ -103,17 +105,19 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/button3"
+                    android:id="@+id/mapZoomButton"
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:onClick="mapZoomButton"
                     android:text="+" />
 
                 <Button
-                    android:id="@+id/button4"
+                    android:id="@+id/mapZoomOutButton"
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:onClick="mapZoomOutButton"
                     android:text="-" />
             </LinearLayout>
 

@@ -66,6 +66,15 @@ public class MenuScreen extends AppCompatActivity {
 
     // --------------------------- END Reserve Button and Navigate Buttons --------------------------------------
 
+    //TODO Implement zooming and zooming out using the buttons
+    public void mapZoomButton(View view){
+
+    }
+    public void mapZoomOutButton(View view){
+
+    }
+
+
     // ---------------------- This stuff is used for the top-right dropdown menu
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
