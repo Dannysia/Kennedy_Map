@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -66,12 +67,16 @@ public class MenuScreen extends AppCompatActivity {
 
     // --------------------------- END Reserve Button and Navigate Buttons --------------------------------------
 
-    //TODO Implement zooming and zooming out using the buttons
+    //TODO Need to fix the MapZoomAndPanLayout class in order to do it this way
     public void mapZoomButton(View view){
-
+        MapZoomAndPanLayout mapZoomAndPanLayout = (MapZoomAndPanLayout) findViewById(R.id.mapZoomAndPanLayout);
+        mapZoomAndPanLayout.getChildAt(0).setScaleX((float) (mapZoomAndPanLayout.getChildAt(0).getScaleX()+0.25));
+        mapZoomAndPanLayout.getChildAt(0).setScaleY((float) (mapZoomAndPanLayout.getChildAt(0).getScaleY()+0.25));
     }
     public void mapZoomOutButton(View view){
-
+        MapZoomAndPanLayout mapZoomAndPanLayout = (MapZoomAndPanLayout) findViewById(R.id.mapZoomAndPanLayout);
+        mapZoomAndPanLayout.getChildAt(0).setScaleX((float) (mapZoomAndPanLayout.getChildAt(0).getScaleX()-0.25));
+        mapZoomAndPanLayout.getChildAt(0).setScaleY((float) (mapZoomAndPanLayout.getChildAt(0).getScaleY()-0.25));
     }
 
 
@@ -88,7 +93,6 @@ public class MenuScreen extends AppCompatActivity {
                 logout();
                 Intent intent2 = new Intent(this, LoginScreen.class);
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent2.putExtra("user",authenticatedUser);
                 startActivity(intent2);
                 return true;
             default:

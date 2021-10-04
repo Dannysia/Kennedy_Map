@@ -6,8 +6,12 @@ import androidx.fragment.app.DialogFragment;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -25,15 +29,15 @@ import java.util.Date;
 
 public class ReservationScreen extends AppCompatActivity {
 
-
-
     AbstractUser authenticatedUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // TODO: Get extra and store authenticatedUser
+
         //TODO: Add drop down menu back so they can go back without having to click the back button
-        setTitle("Reservation Screen             ");
+        setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
 
         //TODO change this list to the rooms we want to be reservable later
@@ -188,6 +192,32 @@ public class ReservationScreen extends AppCompatActivity {
     //TODO: Add all error checking here to make reservations, use authenticatedUser
     public void reserveConfirmButton(View view){
 
+    }
+
+    // ---------------------- This stuff is used for the top-right dropdown menu
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_screen_menu, menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            // Add cases with the buttonID as you need more menu options
+            case R.id.menuLogOut:
+                logout();
+                Intent intent2 = new Intent(this, LoginScreen.class);
+                intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent2);
+                return true;
+            default:
+                return false;
+        }
+    }
+    // ---------------------- END stuff used for top-right dropdown menu
+
+    //TODO: This might or might not be used, we might have to do some clean-up when the menu logout button is pressed.
+    public boolean logout(){
+        return false;
     }
 
 }
