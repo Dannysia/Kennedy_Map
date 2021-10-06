@@ -20,6 +20,7 @@ public class MenuScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Main Menu                           Options:"); // pro code
+        authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
         setContentView(R.layout.menu_screen);
         // use getExtra to get either the GuestUser or RegisteredUser and store it in authenticatedUser
 

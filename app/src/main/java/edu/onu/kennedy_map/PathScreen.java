@@ -126,6 +126,8 @@ public class PathScreen extends AppCompatActivity {
         inflater.inflate(R.menu.main_screen_menu, menu);
         return true;
     }
+
+    // TODO: Add option to return to Menu screen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             // Add cases with the buttonID as you need more menu options

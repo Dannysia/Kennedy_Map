@@ -2,6 +2,7 @@ package edu.onu.kennedy_map;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -10,6 +11,18 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoginScreen extends AppCompatActivity {
 
@@ -53,6 +66,8 @@ public class LoginScreen extends AppCompatActivity {
 	public void guestButton(View view){
 		//TODO make sure to pass a GuestUser as the extra along with this startActivity later
 		Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
+		GuestUser guestUser = new GuestUser();
+		intent.putExtra("user",guestUser);
 		startActivity(intent);
 	}
 	// ------------------------------------------- END Title Portion -----------------------------------------------
@@ -66,6 +81,7 @@ public class LoginScreen extends AppCompatActivity {
 		// Make sure neither are blank
 		if(emailLoginEditText.getText().toString().equals("")||passwordLoginEditText.getText().toString().equals("")){
 			Toast.makeText(LoginScreen.this, "Email and Password are required.", Toast.LENGTH_LONG).show();
+			return;
 		}
 
 		// TODO: More input sanitation here before we send it to our database (or webserver)
@@ -74,9 +90,58 @@ public class LoginScreen extends AppCompatActivity {
 		// Else we can ensure the credentials are authentic, use our special database method here
 		//if(){
 
-		//}else{
-			//Toast.makeText(LoginScreen.this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
-		//}
+		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/login"; // 1. Endpoint
+
+		JSONObject requestBody=null;
+		try {
+			requestBody = new JSONObject();
+			requestBody.put("email", emailLoginEditText.getText().toString());
+			requestBody.put("password", passwordLoginEditText.getText().toString());
+			System.out.println(requestBody.toString());
+		}catch (JSONException ignored){ }
+		AtomicInteger test = new AtomicInteger(0);
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+				(Request.Method.POST, authenticationEndpoint, requestBody,
+						response -> {
+							// We don't use userInfo for now
+							System.out.println(response.toString());
+							try{
+								int userID = Integer.getInteger(response.toString());
+								test.set(userID);
+							}catch(Exception e){
+								test.set(0);
+							}
+						}, error -> {// TODO: Handle error
+							System.out.println(error.toString());
+						}){
+			@Override
+			public Map<String, String> getHeaders() {
+				Map<String, String> params = new HashMap<String, String>();
+				//Put headers here
+				//params.put("x-vacationtoken", "secret_token");
+				//params.put("content-type", "application/json");
+				return params;
+			}};
+		System.out.println(jsonObjectRequest.toString());
+		// Add the request to the queue, which will complete eventually
+		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
+		int counter=0;
+		while(counter<10){
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException ignored) {}
+			if(test.get()!=0){
+				Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
+				RegisteredUser registeredUser = new RegisteredUser(test.get(),null);
+				intent.putExtra("user",registeredUser);
+				startActivity(intent);
+				break;
+			}
+			counter++;
+		}
+		if(test.get()==0) {
+			Toast.makeText(LoginScreen.this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
+		}
 	}
 	public void forgotPasswordButton(View view){
 		//TODO add animation to pressing the sign in button

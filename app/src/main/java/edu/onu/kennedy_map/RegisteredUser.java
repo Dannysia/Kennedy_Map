@@ -11,8 +11,9 @@ public class RegisteredUser extends AbstractUser {
     /**
      * Constructor for RegisteredUser is filled during object creation. You will read from the database to populate the HashMap
      * @param userInfo The HashMap containing userInfo
+     * @param userId The userID returned by the response
      */
-    public RegisteredUser(HashMap<String,String> userInfo){
+    public RegisteredUser(int userId,HashMap<String,String> userInfo){
         this.userInfo = userInfo;
     }
 
