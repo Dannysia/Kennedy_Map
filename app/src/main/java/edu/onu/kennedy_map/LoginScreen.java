@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoginScreen extends AppCompatActivity {
@@ -84,65 +85,48 @@ public class LoginScreen extends AppCompatActivity {
 			return;
 		}
 
-		// TODO: More input sanitation here before we send it to our database (or webserver)
+		// TODO: More input sanitation here before we send it to our webserver
 
-		// TODO: Replace here the code we use for account management
-		// Else we can ensure the credentials are authentic, use our special database method here
-		//if(){
-
+		//TODO put this all in LoginHelper
 		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/login"; // 1. Endpoint
-
 		JSONObject requestBody=null;
 		try {
 			requestBody = new JSONObject();
 			requestBody.put("email", emailLoginEditText.getText().toString());
 			requestBody.put("password", passwordLoginEditText.getText().toString());
-			System.out.println(requestBody.toString());
+			System.out.println("Sent Content: "+requestBody.toString());
 		}catch (JSONException ignored){ }
-		AtomicInteger test = new AtomicInteger(0);
+		AtomicInteger returnedUserID = new AtomicInteger(0);
 		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
 				(Request.Method.POST, authenticationEndpoint, requestBody,
 						response -> {
-							// We don't use userInfo for now
-							System.out.println(response.toString());
 							try{
-								int userID = Integer.getInteger(response.toString());
-								test.set(userID);
+								int userID = response.getInt("userID");
+								returnedUserID.set(userID);
+								System.out.println("Recieved Content: "+returnedUserID.get());
 							}catch(Exception e){
-								test.set(0);
+								returnedUserID.set(0);
 							}
-						}, error -> {// TODO: Handle error
-							System.out.println(error.toString());
-						}){
-			@Override
-			public Map<String, String> getHeaders() {
-				Map<String, String> params = new HashMap<String, String>();
-				//Put headers here
-				//params.put("x-vacationtoken", "secret_token");
-				//params.put("content-type", "application/json");
-				return params;
-			}};
-		System.out.println(jsonObjectRequest.toString());
+							if(returnedUserID.get()!=0){
+								Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
+								// RegisteredUser is created with userID received and userInfo(not used)
+								RegisteredUser registeredUser = new RegisteredUser(returnedUserID.get(),null);
+								System.out.println(returnedUserID.get());
+								intent.putExtra("user",registeredUser);
+								startActivity(intent);
+							}
+							else if(returnedUserID.get()==0) {
+								Toast.makeText(LoginScreen.this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
+							}
+						}, error -> { System.out.println("Error "+error.toString());
+				});
+		//TODO pop up waiting symbol, until the response is received.
+		// The code to show will be right here, but the the code to remove it will be in the listeners
+
 		// Add the request to the queue, which will complete eventually
 		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
-		int counter=0;
-		while(counter<10){
-			try {
-				Thread.sleep(1500);
-			} catch (InterruptedException ignored) {}
-			if(test.get()!=0){
-				Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
-				RegisteredUser registeredUser = new RegisteredUser(test.get(),null);
-				intent.putExtra("user",registeredUser);
-				startActivity(intent);
-				break;
-			}
-			counter++;
-		}
-		if(test.get()==0) {
-			Toast.makeText(LoginScreen.this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
-		}
 	}
+
 	public void forgotPasswordButton(View view){
 		//TODO add animation to pressing the sign in button
 		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
@@ -167,11 +151,8 @@ public class LoginScreen extends AppCompatActivity {
 		if(emailPasswordResetEditText.getText().toString().equals("")){
 			Toast.makeText(LoginScreen.this, "Email is required.", Toast.LENGTH_LONG).show();
 		}
-
 		//TODO: More input sanitation here before we send it to our database (or webserver)
-
-		//Reset the user's password somehow.
-
+		//TODO: Reset the user's password somehow.
 	}
 	public void returnToSigninButton(View view){
 		//TODO add animation to pressing the sign in button
@@ -186,14 +167,18 @@ public class LoginScreen extends AppCompatActivity {
 	// This is the functionality when they press Sign-Up
 	// ----------------------------------------------- Sign-Up Portion -----------------------------------------------
 	public void signupButton(View view){
+
+		EditText firstNameSignUpEditText        = (EditText)findViewById(R.id.firstNameSignUpEditText);
+		EditText lastNameSignUpEditText         = (EditText)findViewById(R.id.lastNameSignUpEditText);
 		EditText emailSignupEditText          	= (EditText)findViewById(R.id.emailSignupEditText);
 		EditText passwordSignupEditText         = (EditText)findViewById(R.id.passwordSignupEditText);
 		EditText confirmPasswordSignupEditText  = (EditText)findViewById(R.id.confirmPasswordSignupEditText);
-		RadioGroup studentTeacherRadioGroup 		= (RadioGroup) findViewById(R.id.studentTeacherRadioGroup);
+
 
 		// Make sure none are blank
 		if(emailSignupEditText.getText().toString().equals("")||passwordSignupEditText.getText().toString().equals("")
-				||confirmPasswordSignupEditText.getText().toString().equals("")||studentTeacherRadioGroup.getCheckedRadioButtonId()==View.NO_ID){
+				||confirmPasswordSignupEditText.getText().toString().equals("")||firstNameSignUpEditText.getText().toString().equals("")
+				||lastNameSignUpEditText.getText().toString().equals("")){
 			Toast.makeText(LoginScreen.this, "All fields are required.", Toast.LENGTH_LONG).show();
 		}
 		// Make sure passwords match
@@ -203,15 +188,46 @@ public class LoginScreen extends AppCompatActivity {
 
 		// TODO: More input sanitation here before we send it to our database (or webserver)
 
-		// Now check if the username matches another in the database (if the user doesn't exist... make the account)
-		// Use our special database method here
+		//TODO put this all in LoginHelper
+		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/register"; // 1. Endpoint
+		JSONObject requestBody=null;
+		try {
+			requestBody = new JSONObject();
+			requestBody.put("email", emailSignupEditText.getText().toString());
+			requestBody.put("password", passwordSignupEditText.getText().toString());
+			requestBody.put("first_name", firstNameSignUpEditText.getText().toString());
+			requestBody.put("last_name", lastNameSignUpEditText.getText().toString());
+			System.out.println("Sent Content: "+requestBody.toString());
+		}catch (JSONException ignored){ }
+		AtomicBoolean successBoolean = new AtomicBoolean(false);
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+				(Request.Method.POST, authenticationEndpoint, requestBody,
+						response -> {
+							try{
+								//TODO Change name of JSON pair to whatever danny makes it
+								boolean successToAddAccount = response.getBoolean("creationSuccessful");
+								successBoolean.set(successToAddAccount);
+								System.out.println("Recieved Content: "+successBoolean.get());
+							}catch(Exception e){
+								successBoolean.set(false);
+							}
+							if(successBoolean.get()){
+								LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
+								LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signinLayout);
+								signupLayout.setVisibility(View.GONE);
+								signinSignupLayout.setVisibility(View.VISIBLE);
+								Toast.makeText(LoginScreen.this, "Account Creation Successful. Login Now.", Toast.LENGTH_LONG).show();
+							}
+							else if(!successBoolean.get()) {
+								Toast.makeText(LoginScreen.this, "Email already used. Pick another one.", Toast.LENGTH_LONG).show();
+							}
+						}, error -> { System.out.println("Error "+error.toString());
+				});
+		//TODO pop up waiting symbol, until the response is received.
+		// The code to show will be right here, but the the code to remove it will be in the listeners
 
-		// Else if the username does already exist
-		//if(){
-
-		//}else{
-			//Toast.makeText(LoginScreen.this, "Username taken, enter a different username", Toast.LENGTH_LONG).show();
-		//}
+		// Add the request to the queue, which will complete eventually
+		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
 	}
 	public void returnToTitleButton2(View view){
 		//TODO add animation to pressing the sign in button

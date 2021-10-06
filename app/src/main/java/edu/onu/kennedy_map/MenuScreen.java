@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MenuScreen extends AppCompatActivity {
 
@@ -20,9 +21,11 @@ public class MenuScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Main Menu                           Options:"); // pro code
-        authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
-        setContentView(R.layout.menu_screen);
         // use getExtra to get either the GuestUser or RegisteredUser and store it in authenticatedUser
+        authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
+        Toast.makeText(MenuScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
+        setContentView(R.layout.menu_screen);
+
 
         // Setup floor radio buttons
 
@@ -57,12 +60,16 @@ public class MenuScreen extends AppCompatActivity {
 
     public void reservationButton(View view){
         //TODO make sure to keep passing along User, make sure guest cannot enter this screen
-        Intent intent = new Intent(MenuScreen.this, ReservationScreen.class);
-        startActivity(intent);
+        if(authenticatedUser.getUserID()!=-1){
+            Intent intent = new Intent(MenuScreen.this, ReservationScreen.class);
+            startActivity(intent);
+        }
+        Toast.makeText(MenuScreen.this, "Guests cannot make Reservations", Toast.LENGTH_LONG).show();
     }
     public void pathFindButton(View view){
         //TODO make sure to keep passing along User, even though it doesn't matter here you will want to pass it back
         Intent intent = new Intent(MenuScreen.this, PathScreen.class);
+        intent.putExtra("user",authenticatedUser);
         startActivity(intent);
     }
 
