@@ -3,6 +3,7 @@ package edu.onu.kennedy_map;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -16,16 +17,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.dpizarro.uipicker.library.picker.PickerUI;
 import com.dpizarro.uipicker.library.picker.PickerUISettings;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ReservationScreen extends AppCompatActivity {
 
@@ -33,40 +44,46 @@ public class ReservationScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: Get extra and store authenticatedUser
+        authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
+        Toast.makeText(ReservationScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
 
         //TODO: Add drop down menu back so they can go back without having to click the back button
         setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
+        //TODO put this all in DatabaseHelper
+        String reservableRoomsEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/rooms/reservable"; // 1. Endpoint
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, reservableRoomsEndpoint, null,
+                        response -> {
+                            try{
+                                //TODO Change name of JSON to whatever danny makes it
+                                ArrayList<String> roomIDs = new ArrayList<>();
+                                JSONArray roomIdsJSON = response.getJSONArray("reservableRooms");
+                                for (int i = 0; i<roomIdsJSON.length(); i++){
+                                    roomIDs.add((String)roomIdsJSON.get(i));
+                                }
+                                PickerUI roomPicker = (PickerUI)findViewById(R.id.picker_ui_view);
+                                PickerUISettings pickerUISettings = new PickerUISettings.Builder()
+                                        .withItems(roomIDs)
+                                        .withAutoDismiss(false)
+                                        .withItemsClickables(false)
+                                        .withUseBlur(false)
+                                        .build();
 
-        //TODO change this list to the rooms we want to be reservable later
-        ArrayList<String> rooms = new ArrayList<>();
-        rooms.add("Test1");
-        rooms.add("Test2");
-        rooms.add("Test3");
-        rooms.add("Test4");
-        rooms.add("Test5");
-        rooms.add("Test6");
-        rooms.add("Test7");
-        rooms.add("Test8");
-        PickerUI roomPicker = (PickerUI)findViewById(R.id.picker_ui_view);
-        PickerUISettings pickerUISettings = new PickerUISettings.Builder()
-                .withItems(rooms)
-                .withAutoDismiss(false)
-                .withItemsClickables(false)
-                .withUseBlur(false)
-                .build();
-
-        roomPicker.setSettings(pickerUISettings);
+                                roomPicker.setSettings(pickerUISettings);
+                            }catch(Exception e){
+                                Toast.makeText(ReservationScreen.this, "Some error occured", Toast.LENGTH_LONG).show();
+                            }
+                        }, error -> { System.out.println("Error "+error.toString());
+                });
+        //TODO pop up waiting symbol, until the response is received.
+        APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-
         private Button button;
         private TextView storageHour;
         private TextView storageMinute;
-
         public TimePickerFragment(Button button,TextView storageHour,TextView storageMinute){
             this.button = button;
             this.storageHour = storageHour;
@@ -81,6 +98,7 @@ public class ReservationScreen extends AppCompatActivity {
             // Create a new instance of TimePickerDialog and return it
             return new TimePickerDialog(getActivity(), this, hour, minute, DateFormat.is24HourFormat(getActivity()));
         }
+        @SuppressLint("SetTextI18n")
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             String minuteText;
             if(minute==0){
@@ -88,18 +106,20 @@ public class ReservationScreen extends AppCompatActivity {
             }else{
                 minuteText=Integer.toString(minute);
             }
-            button.setText(""+hourOfDay+":"+minuteText);
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("HHmm");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+            LocalTime convertToRealTime = LocalTime.from(inputFormatter.parse(""+hourOfDay+minuteText));
+            String realTime = outputFormatter.format(convertToRealTime);
+            button.setText(realTime);
             storageHour.setText(""+hourOfDay);
             storageMinute.setText(""+minuteText);
         }
     }
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-
         private Button clickedButton;
         private TextView storageDay;
         private TextView storageMonth;
         private TextView storageYear;
-
         public DatePickerFragment(Button clickedButton,TextView storageDay,TextView storageMonth,TextView storageYear){
             this.clickedButton = clickedButton;
             this.storageDay = storageDay;
@@ -118,6 +138,7 @@ public class ReservationScreen extends AppCompatActivity {
             return new DatePickerDialog(getActivity(), this, year, month, day);
         }
 
+        @SuppressLint("SetTextI18n")
         public void onDateSet(DatePicker view, int year, int month, int day) {
             clickedButton.setText(""+month+"/"+day+"/"+year);
             storageDay.setText(""+day);
@@ -125,7 +146,6 @@ public class ReservationScreen extends AppCompatActivity {
             storageYear.setText(""+year);
         }
     }
-
     public void startTimeButton(View view){
         Button startTimeButton = (Button)findViewById(R.id.startTimeButton);
         TextView startHour = (TextView)findViewById(R.id.startHour);
@@ -164,7 +184,39 @@ public class ReservationScreen extends AppCompatActivity {
             @Override
             public void onItemClickPickerUI(int which, int position, String valueResult) {
                 //TODO: Add so where it zooms in on the room based on the selection, gonna resize all the images to 1000x1000 to do this easy
+                // Query the database for the reservations for the selected room
+                // TODO put this all in DatabaseHelper
+                String reservationsInRoomEndpoint = APIRequestQueue.getInstance(view.getContext()).getENDPOINT()+"/reservations/room/"+valueResult; // 1. Endpoint
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                        (Request.Method.GET, reservationsInRoomEndpoint, null,
+                                response -> {
+                                    try{
+                                        //Take the JSONArray, for each JSONObject of that array, form a string that will be printed
+                                        //TODO Change name of JSON to whatever danny makes it
+                                        ArrayList<String> finishedRoomStrings = new ArrayList<>();
+                                        JSONArray currentRoomReservationsJSONArray = response.getJSONArray("currentRoomReservations");
+                                        ArrayList<JSONObject> currentReservationsJSONObjects = new ArrayList<>();
+                                        for(int i=0; i<currentRoomReservationsJSONArray.length(); i++){
+                                            JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
+                                            finishedRoomStrings.add(currentRoomReservationJSONData.get("StartTime")+" - "+currentRoomReservationJSONData.get("EndTime"));
+                                        }
+                                        PickerUI roomPicker = (PickerUI)findViewById(R.id.picker_ui_view);
+                                        PickerUISettings pickerUISettings = new PickerUISettings.Builder()
+                                                .withItems(finishedRoomStrings)
+                                                .withAutoDismiss(false)
+                                                .withItemsClickables(false)
+                                                .withUseBlur(false)
+                                                .build();
+                                        roomPicker.setSettings(pickerUISettings);
+                                    }catch(Exception e){
+                                        Toast.makeText(ReservationScreen.this, "Some error occurred", Toast.LENGTH_LONG).show();
+                                    }
+                                }, error -> { System.out.println("Error "+error.toString());
+                        });
+                //TODO pop up waiting symbol, until the response is received.
                 selectRoomButton.setText(valueResult);
+                APIRequestQueue.getInstance(view.getContext()).addToRequestQueue(jsonObjectRequest);
+
             }
         });
         roomPicker.slide(0);
@@ -191,7 +243,73 @@ public class ReservationScreen extends AppCompatActivity {
 
     //TODO: Add all error checking here to make reservations, use authenticatedUser
     public void reserveConfirmButton(View view){
+        //TODO put this all in DatabaseHelper
+        String makeAReservationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/reservations/create"; // 1. Endpoint
+        JSONObject requestBody=null;
+        try {
+            requestBody = new JSONObject();
+            Button selectRoomButton = (Button)findViewById(R.id.selectRoomButton);
+            if(selectRoomButton.getText().toString().equals("")||selectRoomButton.getText().toString().toUpperCase().equals("SELECT A ROOM")){
+                Toast.makeText(ReservationScreen.this, "Please select a room.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            requestBody.put("roomID", selectRoomButton.getText().toString());
+            requestBody.put("ownerID", authenticatedUser.getUserID());
 
+            DateTimeFormatter inputFormattedStart = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            DateTimeFormatter outputFormatterStart = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            TextView startYear = (TextView)findViewById(R.id.startYear);
+            TextView startMonth= (TextView)findViewById(R.id.startMonth);
+            TextView startDay  = (TextView)findViewById(R.id.startDay);
+            TextView startHour  = (TextView)findViewById(R.id.startHour);
+            TextView startMinute  = (TextView)findViewById(R.id.startMinute);
+            String startSecond  = "00";
+            LocalTime convertToRealTimeStart = LocalTime.from(inputFormattedStart.parse(startYear.getText().toString()+
+                    startMonth.getText().toString()+startDay.getText().toString()+startHour.getText().toString()+
+                    startMinute.getText().toString()+startSecond));
+            String dateTimeFormatStart = outputFormatterStart.format(convertToRealTimeStart);
+            requestBody.put("start_time",dateTimeFormatStart);
+
+            DateTimeFormatter inputFormattedEnd = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            DateTimeFormatter outputFormatterEnd = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            TextView endYear = (TextView)findViewById(R.id.endYear);
+            TextView endMonth= (TextView)findViewById(R.id.endMonth);
+            TextView endDay  = (TextView)findViewById(R.id.endDay);
+            TextView endHour  = (TextView)findViewById(R.id.endHour);
+            TextView endMinute  = (TextView)findViewById(R.id.endMinute);
+            String endSecond  = "00";
+            LocalTime convertToRealTimeEnd = LocalTime.from(inputFormattedEnd.parse(endYear.getText().toString()+
+                    endMonth.getText().toString()+endDay.getText().toString()+endHour.getText().toString()+
+                    endMinute.getText().toString()+endSecond));
+            String dateTimeFormatEnd = outputFormatterEnd.format(convertToRealTimeEnd);
+            requestBody.put("end_time", dateTimeFormatEnd);
+
+            System.out.println("Sent Content: "+requestBody.toString());
+        }catch (JSONException ignored){ }
+        AtomicBoolean successBoolean = new AtomicBoolean(false);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, makeAReservationEndpoint, requestBody,
+                        response -> {
+                            try{
+                                //TODO Change name of JSON pair to whatever danny makes it
+                                boolean successToReserve = response.getBoolean("reservationSuccessful");
+                                successBoolean.set(successToReserve);
+                                System.out.println("Received Content: "+successBoolean.get());
+                            }catch(Exception e){
+                                successBoolean.set(false);
+                            }
+                            if(successBoolean.get()){
+                                Toast.makeText(ReservationScreen.this, "Reservation Successful.", Toast.LENGTH_LONG).show();
+                            }
+                            else if(!successBoolean.get()) {
+                                Toast.makeText(ReservationScreen.this, "Reservation Unsuccessful", Toast.LENGTH_LONG).show();
+                            }
+                        }, error -> { System.out.println("Error "+error.toString());
+                });
+        //TODO pop up waiting symbol, until the response is received.
+        // The code to show will be right here, but the the code to remove it will be in the listeners
+        // Add the request to the queue, which will complete eventually
+        APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu

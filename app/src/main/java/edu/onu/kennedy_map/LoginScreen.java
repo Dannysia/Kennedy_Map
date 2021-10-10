@@ -2,26 +2,20 @@ package edu.onu.kennedy_map;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -87,7 +81,7 @@ public class LoginScreen extends AppCompatActivity {
 
 		// TODO: More input sanitation here before we send it to our webserver
 
-		//TODO put this all in LoginHelper
+		//TODO put this all in DatabaseHelper
 		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/login"; // 1. Endpoint
 		JSONObject requestBody=null;
 		try {
@@ -188,7 +182,7 @@ public class LoginScreen extends AppCompatActivity {
 
 		// TODO: More input sanitation here before we send it to our database (or webserver)
 
-		//TODO put this all in LoginHelper
+		//TODO put this all in DatabaseHelper
 		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/register"; // 1. Endpoint
 		JSONObject requestBody=null;
 		try {
@@ -216,7 +210,7 @@ public class LoginScreen extends AppCompatActivity {
 								LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signinLayout);
 								signupLayout.setVisibility(View.GONE);
 								signinSignupLayout.setVisibility(View.VISIBLE);
-								Toast.makeText(LoginScreen.this, "Account Creation Successful. Login Now.", Toast.LENGTH_LONG).show();
+								Toast.makeText(LoginScreen.this, "Account Creation Successful. Sign-in Now.", Toast.LENGTH_LONG).show();
 							}
 							else if(!successBoolean.get()) {
 								Toast.makeText(LoginScreen.this, "Email already used. Pick another one.", Toast.LENGTH_LONG).show();

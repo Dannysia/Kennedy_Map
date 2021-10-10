@@ -44,7 +44,7 @@ public class MenuScreen extends AppCompatActivity {
         ImageView floorImageView = (ImageView) findViewById(R.id.floorImageView);
         TextView floorDescriptionTextView = (TextView) findViewById(R.id.floorDescriptionTextView);
         floorDescriptionTextView.setText("The second floor includes professor offices' along the outer-right" +
-                " edge. There are also multiple computer labs on this floor.");
+                " edge. There are multiple computer labs on this floor.");
         floorImageView.setImageResource(R.drawable.engineering_floor_two);
     }
     public void floorThreeRadioButton(View view){
@@ -59,15 +59,15 @@ public class MenuScreen extends AppCompatActivity {
     // ------------------------------- Reserve Button and Navigate Buttons --------------------------------------
 
     public void reservationButton(View view){
-        //TODO make sure to keep passing along User, make sure guest cannot enter this screen
         if(authenticatedUser.getUserID()!=-1){
             Intent intent = new Intent(MenuScreen.this, ReservationScreen.class);
+            intent.putExtra("user",authenticatedUser);
             startActivity(intent);
+        }else{
+            Toast.makeText(MenuScreen.this, "Guests cannot make Reservations", Toast.LENGTH_LONG).show();
         }
-        Toast.makeText(MenuScreen.this, "Guests cannot make Reservations", Toast.LENGTH_LONG).show();
     }
     public void pathFindButton(View view){
-        //TODO make sure to keep passing along User, even though it doesn't matter here you will want to pass it back
         Intent intent = new Intent(MenuScreen.this, PathScreen.class);
         intent.putExtra("user",authenticatedUser);
         startActivity(intent);

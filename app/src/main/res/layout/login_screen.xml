@@ -38,9 +38,10 @@
             android:autoSizeMinTextSize="40sp"
             android:autoSizeTextType="none"
             android:background="@color/ui_black"
+            android:textColor="#FFFFFF"
             android:gravity="center"
             android:text="@string/title"
-            android:textColor="#FFFFFF"
+
             android:textSize="40sp"
             android:textStyle="bold" />
 

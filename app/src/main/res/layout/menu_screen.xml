@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".MenuScreen">
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="false"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/menu_background"
+        tools:ignore="MissingConstraints"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,9 +30,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="bottom|center_horizontal"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:text="Engineering Building Floor View:"
-            android:textColor="#000000"
+            android:background="@color/ui_black"
+            android:textColor="#FFFFFF"
             android:textSize="24sp" />
 
         <LinearLayout
@@ -30,6 +45,11 @@
             android:layout_height="wrap_content"
             android:layout_weight=".4"
             android:gravity="center"
+            android:background="@color/ui_black"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="0dp"
             android:orientation="horizontal">
 
             <TextView
@@ -39,7 +59,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Floor:"
-                android:textColor="#000000"
+                android:textColor="#FFFFFF"
                 android:textSize="34sp" />
 
             <RadioGroup
@@ -48,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="true"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -58,7 +79,7 @@
                     android:clickable="true"
                     android:onClick="floorOneRadioButton"
                     android:text="1"
-                    android:textColor="#000000" />
+                    android:textColor="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/floorTwoRadioButton"
@@ -67,17 +88,16 @@
                     android:clickable="true"
                     android:onClick="floorTwoRadioButton"
                     android:text="2"
-                    android:textColor="#000000" />
+                    android:textColor="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/floorThreeRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:clickable="true"
                     android:onClick="floorThreeRadioButton"
                     android:text="3"
-                    android:textColor="#000000" />
+                    android:textColor="#FFFFFF" />
 
             </RadioGroup>
         </LinearLayout>
@@ -86,8 +106,8 @@
             android:id="@+id/mapZoomAndPanLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
 
             <ImageView
                 android:id="@+id/floorImageView"
@@ -131,7 +151,12 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="This is the ground floor. Unique places on this floor include the Innovation Center, Dean's Office, and Shop."
-            android:textColor="#000000"
+            android:background="@color/ui_black"
+            android:textColor="#FFFFFF"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="10dp"
             android:textSize="20sp" />
 
         <LinearLayout
