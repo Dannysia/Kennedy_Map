@@ -46,47 +46,7 @@ public class ReservationScreen extends AppCompatActivity {
         setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
 
-        //TODO put this all in DatabaseHelper
-        String reservableRoomsEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/rooms/reservable"; // 1. Endpoint
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, reservableRoomsEndpoint, null,
-                        response -> {
-                            try{
-                                //TODO Change name of JSON to whatever danny makes it
-                                ArrayList<String> roomIDs = new ArrayList<>();
-                                JSONArray roomIdsJSON = response.getJSONArray("reservableRooms");
-                                for (int i = 0; i<roomIdsJSON.length(); i++){
-                                    roomIDs.add((String)roomIdsJSON.get(i));
-                                }
-                                PickerUI roomPicker = findViewById(R.id.picker_ui_view);
-                                PickerUISettings pickerUISettings = new PickerUISettings.Builder()
-                                        .withItems(roomIDs)
-                                        .withAutoDismiss(false)
-                                        .withItemsClickables(false)
-                                        .withUseBlur(false)
-                                        .build();
-
-                                roomPicker.setSettings(pickerUISettings);
-                                LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-                                loadingLinearLayout.setVisibility(View.GONE);
-                            }catch(Exception e){
-                                e.printStackTrace();
-                                Toast.makeText(ReservationScreen.this, "Error with received content", Toast.LENGTH_LONG).show();
-                            }
-                        }, error -> {
-                    LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-                    loadingLinearLayout.setVisibility(View.GONE);
-                    Toast.makeText(ReservationScreen.this, "Unable to load content. Try again later.", Toast.LENGTH_LONG).show();
-                    System.out.println("Line 84 Error "+error.toString());
-                });
-        // Loading Screen that is there until data arrives
-        LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-        loadingLinearLayout.setVisibility(View.VISIBLE);
-        loadingLinearLayout.setClickable(true);
-        loadingLinearLayout.setOnClickListener(listener ->{
-            // Purposefully blank
-        });
-        APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
+        DatabaseManager.getInstance().reservationPageLoadRooms(this);
     }
 
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
@@ -130,6 +90,7 @@ public class ReservationScreen extends AppCompatActivity {
             storageMinute.setText(""+minuteText);
         }
     }
+    // TODO: Make sure display month is fixed
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
         private Button clickedButton;
         private TextView storageDay;
@@ -200,51 +161,8 @@ public class ReservationScreen extends AppCompatActivity {
             public void onItemClickPickerUI(int which, int position, String valueResult) {
                 // Query the database for the reservations for the selected room
                 if(valueResult != null && valueResult.equals("")){
-                    // TODO put this all in DatabaseHelper
-                    String reservationsInRoomEndpoint = APIRequestQueue.getInstance(view.getContext()).getENDPOINT()+"/reservations/room/"+valueResult; // 1. Endpoint
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                            (Request.Method.GET, reservationsInRoomEndpoint, null,
-                                    response -> {
-                                        try{
-                                            //Take the JSONArray, for each JSONObject of that array, form a string that will be printed
-                                            //TODO Change name of JSON to whatever danny makes it
-                                            ArrayList<String> finishedRoomStrings = new ArrayList<>();
-                                            JSONArray currentRoomReservationsJSONArray = response.getJSONArray("currentRoomReservations");
-                                            ArrayList<JSONObject> currentReservationsJSONObjects = new ArrayList<>();
-                                            for(int i=0; i<currentRoomReservationsJSONArray.length(); i++){
-                                                JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
-                                                finishedRoomStrings.add(currentRoomReservationJSONData.get("StartTime")+" - "+currentRoomReservationJSONData.get("EndTime"));
-                                            }
-                                            TextView currentReservationsTextView = (TextView) findViewById(R.id.currentReservationsTextView);
-                                            StringBuilder finishedRoomStringDisplay= new StringBuilder();
-                                            for(String roomString : finishedRoomStrings){
-                                                finishedRoomStringDisplay.append(roomString);
-                                            }
-                                            currentReservationsTextView.setText(finishedRoomStringDisplay.toString());
-                                            // Remove loading screen
-                                            LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-                                            loadingLinearLayout.setVisibility(View.GONE);
-                                        }catch(Exception e){
-                                            Toast.makeText(ReservationScreen.this, "Some error occurred", Toast.LENGTH_LONG).show();
-                                        }
-                                    }, error -> { System.out.println("Error "+error.toString());
-                            });
-                    //Pop-up loading screen
-                    LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-                    loadingLinearLayout.setVisibility(View.VISIBLE);
-                    loadingLinearLayout.setClickable(true);
-                    loadingLinearLayout.setOnClickListener(listener ->{
-                        // Purposefully blank
-                    });
-                    selectRoomButton.setText(valueResult);
-                    ImageView reservationScreenRoomImageView = (ImageView)findViewById(R.id.reservationScreenRoomImageView);
-                    // Regex here in case one of the roomID return with the a letter appended to the end
-                    final Pattern pattern = Pattern.compile("(\\w{3}\\d{3}).*");
-                    Matcher matcher = pattern.matcher(valueResult);
-                    String searchRoom = matcher.group(1);
-                    // If null is thrown here something is up with either my regex or the picker
-                    reservationScreenRoomImageView.setImageResource(view.getResources().getIdentifier(searchRoom.toLowerCase(),"drawable",getPackageName()));
-                    APIRequestQueue.getInstance(view.getContext()).addToRequestQueue(jsonObjectRequest);
+
+                    DatabaseManager.getInstance().reservationPageSelectedRoom(ReservationScreen.this,valueResult,selectRoomButton);
                 }
             }
         });
@@ -274,89 +192,8 @@ public class ReservationScreen extends AppCompatActivity {
         intent1.putExtra("user",authenticatedUser);
         startActivity(intent1);
     }
-
-    //TODO: Add all error checking here to make reservations, use authenticatedUser
     public void reserveConfirmButton(View view){
-        //TODO put this all in DatabaseHelper
-        String makeAReservationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/reservations/create"; // 1. Endpoint
-        JSONObject requestBody=null;
-        try {
-            requestBody = new JSONObject();
-            Button selectRoomButton = (Button)findViewById(R.id.selectRoomButton);
-            // Make sure selection is not blank
-            if(selectRoomButton.getText().toString().equals("")||
-                    selectRoomButton.getText().toString().equalsIgnoreCase("SELECT A ROOM")){
-                Toast.makeText(ReservationScreen.this, "Please select a room.", Toast.LENGTH_LONG).show();
-                return;
-            }
-            requestBody.put("roomID", selectRoomButton.getText().toString());
-            requestBody.put("ownerID", authenticatedUser.getUserID());
-
-            DateTimeFormatter inputFormattedStart = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-            DateTimeFormatter outputFormatterStart = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            TextView startYear = (TextView)findViewById(R.id.startYear);
-            TextView startMonth= (TextView)findViewById(R.id.startMonth);
-            TextView startDay  = (TextView)findViewById(R.id.startDay);
-            TextView startHour  = (TextView)findViewById(R.id.startHour);
-            TextView startMinute  = (TextView)findViewById(R.id.startMinute);
-            String startSecond  = "00";
-            LocalTime convertToRealTimeStart = LocalTime.from(inputFormattedStart.parse(startYear.getText().toString()+
-                    startMonth.getText().toString()+startDay.getText().toString()+startHour.getText().toString()+
-                    startMinute.getText().toString()+startSecond));
-            String dateTimeFormatStart = outputFormatterStart.format(convertToRealTimeStart);
-            requestBody.put("start_time",dateTimeFormatStart);
-
-            DateTimeFormatter inputFormattedEnd = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-            DateTimeFormatter outputFormatterEnd = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            TextView endYear = (TextView)findViewById(R.id.endYear);
-            TextView endMonth= (TextView)findViewById(R.id.endMonth);
-            TextView endDay  = (TextView)findViewById(R.id.endDay);
-            TextView endHour  = (TextView)findViewById(R.id.endHour);
-            TextView endMinute  = (TextView)findViewById(R.id.endMinute);
-            String endSecond  = "00";
-            LocalTime convertToRealTimeEnd = LocalTime.from(inputFormattedEnd.parse(endYear.getText().toString()+
-                    endMonth.getText().toString()+endDay.getText().toString()+endHour.getText().toString()+
-                    endMinute.getText().toString()+endSecond));
-            String dateTimeFormatEnd = outputFormatterEnd.format(convertToRealTimeEnd);
-            requestBody.put("end_time", dateTimeFormatEnd);
-
-            // Make sure reservation isn't for the past
-
-
-            System.out.println("Sent Content: "+requestBody.toString());
-        }catch (JSONException ignored){ }
-        AtomicBoolean successBoolean = new AtomicBoolean(false);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, makeAReservationEndpoint, requestBody,
-                        response -> {
-                            try{
-                                //TODO Change name of JSON pair to whatever danny makes it
-                                boolean successToReserve = response.getBoolean("reservationSuccessful");
-                                successBoolean.set(successToReserve);
-                                System.out.println("Received Content: "+successBoolean.get());
-                            }catch(Exception e){
-                                successBoolean.set(false);
-                            }
-                            if(successBoolean.get()){
-                                Toast.makeText(ReservationScreen.this, "Reservation Successful.", Toast.LENGTH_LONG).show();
-                            }
-                            else if(!successBoolean.get()) {
-                                Toast.makeText(ReservationScreen.this, "Reservation Unsuccessful, try another time.", Toast.LENGTH_LONG).show();
-                            }
-                            LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-                            loadingLinearLayout.setVisibility(View.GONE);
-                        }, error -> { System.out.println("Line 347 Error "+error.toString());
-                });
-        //Pop-up loading screen
-        LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
-        loadingLinearLayout.setVisibility(View.VISIBLE);
-        loadingLinearLayout.setClickable(true);
-        loadingLinearLayout.setOnClickListener(listener ->{
-            // Purposefully blank
-        });
-
-        // Add the request to the queue, which will complete eventually
-        APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
+       DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser);
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu

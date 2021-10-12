@@ -81,44 +81,7 @@ public class LoginScreen extends AppCompatActivity {
 
 		// TODO: More input sanitation here before we send it to our webserver
 
-		//TODO put this all in DatabaseHelper
-		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/login"; // 1. Endpoint
-		JSONObject requestBody=null;
-		try {
-			requestBody = new JSONObject();
-			requestBody.put("email", emailLoginEditText.getText().toString());
-			requestBody.put("password", passwordLoginEditText.getText().toString());
-			System.out.println("Sent Content: "+requestBody.toString());
-		}catch (JSONException ignored){ }
-		AtomicInteger returnedUserID = new AtomicInteger(0);
-		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-				(Request.Method.POST, authenticationEndpoint, requestBody,
-						response -> {
-							try{
-								int userID = response.getInt("userID");
-								returnedUserID.set(userID);
-								System.out.println("Recieved Content: "+returnedUserID.get());
-							}catch(Exception e){
-								returnedUserID.set(0);
-							}
-							if(returnedUserID.get()!=0){
-								Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
-								// RegisteredUser is created with userID received and userInfo(not used)
-								RegisteredUser registeredUser = new RegisteredUser(returnedUserID.get(),null);
-								System.out.println(returnedUserID.get());
-								intent.putExtra("user",registeredUser);
-								startActivity(intent);
-							}
-							else if(returnedUserID.get()==0) {
-								Toast.makeText(LoginScreen.this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
-							}
-						}, error -> { System.out.println("Error "+error.toString());
-				});
-		//TODO pop up waiting symbol, until the response is received.
-		// The code to show will be right here, but the the code to remove it will be in the listeners
-
-		// Add the request to the queue, which will complete eventually
-		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
+		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText);
 	}
 
 	public void forgotPasswordButton(View view){
@@ -168,7 +131,6 @@ public class LoginScreen extends AppCompatActivity {
 		EditText passwordSignupEditText         = (EditText)findViewById(R.id.passwordSignupEditText);
 		EditText confirmPasswordSignupEditText  = (EditText)findViewById(R.id.confirmPasswordSignupEditText);
 
-
 		// Make sure none are blank
 		if(emailSignupEditText.getText().toString().equals("")||passwordSignupEditText.getText().toString().equals("")
 				||confirmPasswordSignupEditText.getText().toString().equals("")||firstNameSignUpEditText.getText().toString().equals("")
@@ -182,46 +144,7 @@ public class LoginScreen extends AppCompatActivity {
 
 		// TODO: More input sanitation here before we send it to our database (or webserver)
 
-		//TODO put this all in DatabaseHelper
-		String authenticationEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/register"; // 1. Endpoint
-		JSONObject requestBody=null;
-		try {
-			requestBody = new JSONObject();
-			requestBody.put("email", emailSignupEditText.getText().toString());
-			requestBody.put("password", passwordSignupEditText.getText().toString());
-			requestBody.put("first_name", firstNameSignUpEditText.getText().toString());
-			requestBody.put("last_name", lastNameSignUpEditText.getText().toString());
-			System.out.println("Sent Content: "+requestBody.toString());
-		}catch (JSONException ignored){ }
-		AtomicBoolean successBoolean = new AtomicBoolean(false);
-		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-				(Request.Method.POST, authenticationEndpoint, requestBody,
-						response -> {
-							try{
-								//TODO Change name of JSON pair to whatever danny makes it
-								boolean successToAddAccount = response.getBoolean("creationSuccessful");
-								successBoolean.set(successToAddAccount);
-								System.out.println("Recieved Content: "+successBoolean.get());
-							}catch(Exception e){
-								successBoolean.set(false);
-							}
-							if(successBoolean.get()){
-								LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
-								LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signinLayout);
-								signupLayout.setVisibility(View.GONE);
-								signinSignupLayout.setVisibility(View.VISIBLE);
-								Toast.makeText(LoginScreen.this, "Account Creation Successful. Sign-in Now.", Toast.LENGTH_LONG).show();
-							}
-							else if(!successBoolean.get()) {
-								Toast.makeText(LoginScreen.this, "Email already used. Pick another one.", Toast.LENGTH_LONG).show();
-							}
-						}, error -> { System.out.println("Error "+error.toString());
-				});
-		//TODO pop up waiting symbol, until the response is received.
-		// The code to show will be right here, but the the code to remove it will be in the listeners
-
-		// Add the request to the queue, which will complete eventually
-		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
+		DatabaseManager.getInstance().loginPageRegister(this,emailSignupEditText,passwordSignupEditText,firstNameSignUpEditText,lastNameSignUpEditText);
 	}
 	public void returnToTitleButton2(View view){
 		//TODO add animation to pressing the sign in button
@@ -231,25 +154,5 @@ public class LoginScreen extends AppCompatActivity {
 		signinSignupLayout.setVisibility(View.VISIBLE);
 	}
 	// ----------------------------------------------- END Sign-Up Portion -----------------------------------------------
-
-	/**
-	 * This login function is used to login a 'Guest' user. This function will call LoginHelper, which can then tell that nothing was passed
-	 * and it will create and return the relevant GuestUser Object that you will pass around the app using the getExtra function.
-	 * @return A filled GuestUser object.
-	 */
-	public GuestUser login(){
-		return null;
-	}
-
-	/**
-	 * This login function is used to login a registered user. This function will call LoginHelper, which will then check the database using
-	 * DatabaseManager and eventually return a filled RegisteredUser object that you will pass around.
-	 * @param username The username of the user, which will most likely be pulled from the EditText and sanitized
-	 * @param password The password of the user, which will most likely be pulled from the EditText and sanitized
-	 * @return A filled RegisterUser Object
-	 */
-	public RegisteredUser login(String username, String password){
-		return null;
-	}
 
 }

@@ -279,7 +279,7 @@
         </com.dpizarro.uipicker.library.picker.PickerUI>
 
         <LinearLayout
-            android:id="@+id/loadingLinearLayout"
+            android:id="@+id/reservationLoadingLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/ui_black"
