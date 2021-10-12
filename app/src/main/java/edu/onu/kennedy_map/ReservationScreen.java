@@ -1,8 +1,5 @@
 package edu.onu.kennedy_map;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -16,27 +13,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.dpizarro.uipicker.library.picker.PickerUI;
 import com.dpizarro.uipicker.library.picker.PickerUISettings;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ReservationScreen extends AppCompatActivity {
 
@@ -46,10 +43,9 @@ public class ReservationScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
         Toast.makeText(ReservationScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
-
-        //TODO: Add drop down menu back so they can go back without having to click the back button
         setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
+
         //TODO put this all in DatabaseHelper
         String reservableRoomsEndpoint = APIRequestQueue.getInstance(this).getENDPOINT()+"/rooms/reservable"; // 1. Endpoint
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -62,7 +58,7 @@ public class ReservationScreen extends AppCompatActivity {
                                 for (int i = 0; i<roomIdsJSON.length(); i++){
                                     roomIDs.add((String)roomIdsJSON.get(i));
                                 }
-                                PickerUI roomPicker = (PickerUI)findViewById(R.id.picker_ui_view);
+                                PickerUI roomPicker = findViewById(R.id.picker_ui_view);
                                 PickerUISettings pickerUISettings = new PickerUISettings.Builder()
                                         .withItems(roomIDs)
                                         .withAutoDismiss(false)
@@ -71,12 +67,25 @@ public class ReservationScreen extends AppCompatActivity {
                                         .build();
 
                                 roomPicker.setSettings(pickerUISettings);
+                                LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+                                loadingLinearLayout.setVisibility(View.GONE);
                             }catch(Exception e){
-                                Toast.makeText(ReservationScreen.this, "Some error occured", Toast.LENGTH_LONG).show();
+                                e.printStackTrace();
+                                Toast.makeText(ReservationScreen.this, "Error with received content", Toast.LENGTH_LONG).show();
                             }
-                        }, error -> { System.out.println("Error "+error.toString());
+                        }, error -> {
+                    LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+                    loadingLinearLayout.setVisibility(View.GONE);
+                    Toast.makeText(ReservationScreen.this, "Unable to load content. Try again later.", Toast.LENGTH_LONG).show();
+                    System.out.println("Line 84 Error "+error.toString());
                 });
-        //TODO pop up waiting symbol, until the response is received.
+        // Loading Screen that is there until data arrives
+        LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+        loadingLinearLayout.setVisibility(View.VISIBLE);
+        loadingLinearLayout.setClickable(true);
+        loadingLinearLayout.setOnClickListener(listener ->{
+            // Purposefully blank
+        });
         APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
@@ -148,7 +157,7 @@ public class ReservationScreen extends AppCompatActivity {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             clickedButton.setText(""+month+"/"+day+"/"+year);
             storageDay.setText(""+day);
-            storageMonth.setText(""+month);
+            storageMonth.setText(""+ (month+1));
             storageYear.setText(""+year);
         }
     }
@@ -189,38 +198,54 @@ public class ReservationScreen extends AppCompatActivity {
         roomPicker.setOnClickItemPickerUIListener(new PickerUI.PickerUIItemClickListener() {
             @Override
             public void onItemClickPickerUI(int which, int position, String valueResult) {
-                //TODO: Add so where it zooms in on the room based on the selection, gonna resize all the images to 1000x1000 to do this easy
                 // Query the database for the reservations for the selected room
-                // TODO put this all in DatabaseHelper
-                String reservationsInRoomEndpoint = APIRequestQueue.getInstance(view.getContext()).getENDPOINT()+"/reservations/room/"+valueResult; // 1. Endpoint
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                        (Request.Method.GET, reservationsInRoomEndpoint, null,
-                                response -> {
-                                    try{
-                                        //Take the JSONArray, for each JSONObject of that array, form a string that will be printed
-                                        //TODO Change name of JSON to whatever danny makes it
-                                        ArrayList<String> finishedRoomStrings = new ArrayList<>();
-                                        JSONArray currentRoomReservationsJSONArray = response.getJSONArray("currentRoomReservations");
-                                        ArrayList<JSONObject> currentReservationsJSONObjects = new ArrayList<>();
-                                        for(int i=0; i<currentRoomReservationsJSONArray.length(); i++){
-                                            JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
-                                            finishedRoomStrings.add(currentRoomReservationJSONData.get("StartTime")+" - "+currentRoomReservationJSONData.get("EndTime"));
+                if(valueResult != null && valueResult.equals("")){
+                    // TODO put this all in DatabaseHelper
+                    String reservationsInRoomEndpoint = APIRequestQueue.getInstance(view.getContext()).getENDPOINT()+"/reservations/room/"+valueResult; // 1. Endpoint
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                            (Request.Method.GET, reservationsInRoomEndpoint, null,
+                                    response -> {
+                                        try{
+                                            //Take the JSONArray, for each JSONObject of that array, form a string that will be printed
+                                            //TODO Change name of JSON to whatever danny makes it
+                                            ArrayList<String> finishedRoomStrings = new ArrayList<>();
+                                            JSONArray currentRoomReservationsJSONArray = response.getJSONArray("currentRoomReservations");
+                                            ArrayList<JSONObject> currentReservationsJSONObjects = new ArrayList<>();
+                                            for(int i=0; i<currentRoomReservationsJSONArray.length(); i++){
+                                                JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
+                                                finishedRoomStrings.add(currentRoomReservationJSONData.get("StartTime")+" - "+currentRoomReservationJSONData.get("EndTime"));
+                                            }
+                                            TextView currentReservationsTextView = (TextView) findViewById(R.id.currentReservationsTextView);
+                                            StringBuilder finishedRoomStringDisplay= new StringBuilder();
+                                            for(String roomString : finishedRoomStrings){
+                                                finishedRoomStringDisplay.append(roomString);
+                                            }
+                                            currentReservationsTextView.setText(finishedRoomStringDisplay.toString());
+                                            // Remove loading screen
+                                            LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+                                            loadingLinearLayout.setVisibility(View.GONE);
+                                        }catch(Exception e){
+                                            Toast.makeText(ReservationScreen.this, "Some error occurred", Toast.LENGTH_LONG).show();
                                         }
-                                        TextView currentReservationsTextView = (TextView) findViewById(R.id.currentReservationsTextView);
-                                        StringBuilder finishedRoomStringDisplay= new StringBuilder();
-                                        for(String roomString : finishedRoomStrings){
-                                            finishedRoomStringDisplay.append(roomString);
-                                        }
-                                        currentReservationsTextView.setText(finishedRoomStringDisplay.toString());
-                                    }catch(Exception e){
-                                        Toast.makeText(ReservationScreen.this, "Some error occurred", Toast.LENGTH_LONG).show();
-                                    }
-                                }, error -> { System.out.println("Error "+error.toString());
-                        });
-                //TODO pop up waiting symbol, until the response is received.
-                selectRoomButton.setText(valueResult);
-                APIRequestQueue.getInstance(view.getContext()).addToRequestQueue(jsonObjectRequest);
-
+                                    }, error -> { System.out.println("Error "+error.toString());
+                            });
+                    //Pop-up loading screen
+                    LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+                    loadingLinearLayout.setVisibility(View.VISIBLE);
+                    loadingLinearLayout.setClickable(true);
+                    loadingLinearLayout.setOnClickListener(listener ->{
+                        // Purposefully blank
+                    });
+                    selectRoomButton.setText(valueResult);
+                    ImageView reservationScreenRoomImageView = (ImageView)findViewById(R.id.reservationScreenRoomImageView);
+                    // Regex here in case one of the roomID return with the a letter appended to the end
+                    final Pattern pattern = Pattern.compile("(\\w{3}\\d{3}).*");
+                    Matcher matcher = pattern.matcher(valueResult);
+                    String searchRoom = matcher.group(1);
+                    // If null is thrown here something is up with either my regex or the picker
+                    reservationScreenRoomImageView.setImageResource(view.getResources().getIdentifier(searchRoom.toLowerCase(),"drawable",getPackageName()));
+                    APIRequestQueue.getInstance(view.getContext()).addToRequestQueue(jsonObjectRequest);
+                }
             }
         });
         roomPicker.slide(0);
@@ -244,7 +269,6 @@ public class ReservationScreen extends AppCompatActivity {
             roomPicker.slide();
         }
     }
-
     public void backToMenuButton(View view){
         Intent intent1 = new Intent(this, MenuScreen.class);
         intent1.putExtra("user",authenticatedUser);
@@ -259,6 +283,7 @@ public class ReservationScreen extends AppCompatActivity {
         try {
             requestBody = new JSONObject();
             Button selectRoomButton = (Button)findViewById(R.id.selectRoomButton);
+            // Make sure selection is not blank
             if(selectRoomButton.getText().toString().equals("")||
                     selectRoomButton.getText().toString().equalsIgnoreCase("SELECT A ROOM")){
                 Toast.makeText(ReservationScreen.this, "Please select a room.", Toast.LENGTH_LONG).show();
@@ -295,6 +320,9 @@ public class ReservationScreen extends AppCompatActivity {
             String dateTimeFormatEnd = outputFormatterEnd.format(convertToRealTimeEnd);
             requestBody.put("end_time", dateTimeFormatEnd);
 
+            // Make sure reservation isn't for the past
+
+
             System.out.println("Sent Content: "+requestBody.toString());
         }catch (JSONException ignored){ }
         AtomicBoolean successBoolean = new AtomicBoolean(false);
@@ -315,16 +343,23 @@ public class ReservationScreen extends AppCompatActivity {
                             else if(!successBoolean.get()) {
                                 Toast.makeText(ReservationScreen.this, "Reservation Unsuccessful, try another time.", Toast.LENGTH_LONG).show();
                             }
-                        }, error -> { System.out.println("Error "+error.toString());
+                            LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+                            loadingLinearLayout.setVisibility(View.GONE);
+                        }, error -> { System.out.println("Line 347 Error "+error.toString());
                 });
-        //TODO pop up waiting symbol, until the response is received.
-        // The code to show will be right here, but the the code to remove it will be in the listeners
+        //Pop-up loading screen
+        LinearLayout loadingLinearLayout = (LinearLayout)findViewById(R.id.loadingLinearLayout);
+        loadingLinearLayout.setVisibility(View.VISIBLE);
+        loadingLinearLayout.setClickable(true);
+        loadingLinearLayout.setOnClickListener(listener ->{
+            // Purposefully blank
+        });
+
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu
-    //TODO add view reservations screen
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.reservations_menu, menu);
