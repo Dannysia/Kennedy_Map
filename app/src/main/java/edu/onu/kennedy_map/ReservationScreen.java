@@ -101,17 +101,23 @@ public class ReservationScreen extends AppCompatActivity {
         @SuppressLint("SetTextI18n")
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             String minuteText;
-            if(minute==0){
-                minuteText="00";
+            String hourText;
+            if(minute<10){
+                minuteText="0"+minute;
             }else{
                 minuteText=Integer.toString(minute);
             }
+            if(hourOfDay<10){
+                hourText="0"+ hourOfDay;
+            }else{
+                hourText=Integer.toString(hourOfDay);
+            }
             DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("HHmm");
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-            LocalTime convertToRealTime = LocalTime.from(inputFormatter.parse(""+hourOfDay+minuteText));
+            LocalTime convertToRealTime = LocalTime.from(inputFormatter.parse(""+hourText+minuteText));
             String realTime = outputFormatter.format(convertToRealTime);
             button.setText(realTime);
-            storageHour.setText(""+hourOfDay);
+            storageHour.setText(""+hourText);
             storageMinute.setText(""+minuteText);
         }
     }
@@ -200,14 +206,12 @@ public class ReservationScreen extends AppCompatActivity {
                                             JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
                                             finishedRoomStrings.add(currentRoomReservationJSONData.get("StartTime")+" - "+currentRoomReservationJSONData.get("EndTime"));
                                         }
-                                        PickerUI roomPicker = (PickerUI)findViewById(R.id.picker_ui_view);
-                                        PickerUISettings pickerUISettings = new PickerUISettings.Builder()
-                                                .withItems(finishedRoomStrings)
-                                                .withAutoDismiss(false)
-                                                .withItemsClickables(false)
-                                                .withUseBlur(false)
-                                                .build();
-                                        roomPicker.setSettings(pickerUISettings);
+                                        TextView currentReservationsTextView = (TextView) findViewById(R.id.currentReservationsTextView);
+                                        StringBuilder finishedRoomStringDisplay= new StringBuilder();
+                                        for(String roomString : finishedRoomStrings){
+                                            finishedRoomStringDisplay.append(roomString);
+                                        }
+                                        currentReservationsTextView.setText(finishedRoomStringDisplay.toString());
                                     }catch(Exception e){
                                         Toast.makeText(ReservationScreen.this, "Some error occurred", Toast.LENGTH_LONG).show();
                                     }
@@ -241,6 +245,12 @@ public class ReservationScreen extends AppCompatActivity {
         }
     }
 
+    public void backToMenuButton(View view){
+        Intent intent1 = new Intent(this, MenuScreen.class);
+        intent1.putExtra("user",authenticatedUser);
+        startActivity(intent1);
+    }
+
     //TODO: Add all error checking here to make reservations, use authenticatedUser
     public void reserveConfirmButton(View view){
         //TODO put this all in DatabaseHelper
@@ -249,7 +259,8 @@ public class ReservationScreen extends AppCompatActivity {
         try {
             requestBody = new JSONObject();
             Button selectRoomButton = (Button)findViewById(R.id.selectRoomButton);
-            if(selectRoomButton.getText().toString().equals("")||selectRoomButton.getText().toString().toUpperCase().equals("SELECT A ROOM")){
+            if(selectRoomButton.getText().toString().equals("")||
+                    selectRoomButton.getText().toString().equalsIgnoreCase("SELECT A ROOM")){
                 Toast.makeText(ReservationScreen.this, "Please select a room.", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -302,7 +313,7 @@ public class ReservationScreen extends AppCompatActivity {
                                 Toast.makeText(ReservationScreen.this, "Reservation Successful.", Toast.LENGTH_LONG).show();
                             }
                             else if(!successBoolean.get()) {
-                                Toast.makeText(ReservationScreen.this, "Reservation Unsuccessful", Toast.LENGTH_LONG).show();
+                                Toast.makeText(ReservationScreen.this, "Reservation Unsuccessful, try another time.", Toast.LENGTH_LONG).show();
                             }
                         }, error -> { System.out.println("Error "+error.toString());
                 });
@@ -313,15 +324,21 @@ public class ReservationScreen extends AppCompatActivity {
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu
+    //TODO add view reservations screen
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_screen_menu, menu);
+        inflater.inflate(R.menu.reservations_menu, menu);
         return true;
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             // Add cases with the buttonID as you need more menu options
-            case R.id.menuLogOut:
+            case R.id.reservationsViewReservations:
+                Intent intent1 = new Intent(this, ViewReservationsScreen.class);
+                intent1.putExtra("user",authenticatedUser);
+                startActivity(intent1);
+                return true;
+            case R.id.reservationsLogOut:
                 logout();
                 Intent intent2 = new Intent(this, LoginScreen.class);
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
