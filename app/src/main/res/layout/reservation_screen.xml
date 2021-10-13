@@ -4,7 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:backgroundTintMode="add"
     tools:context=".ReservationScreen">
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/reservation_background" />
 
     <TextView
         android:id="@+id/startDay"
@@ -87,7 +99,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -98,20 +109,19 @@
             android:id="@+id/mainReservationLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:onClick="mainReservationLinearLayout"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/reservationScreenRoomImageView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginRight="30dp"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="70dp"
                 android:adjustViewBounds="true"
-                android:cropToPadding="false"
                 android:onClick="reservationScreenRoomImageView"
-                android:scaleType="centerInside"
                 app:srcCompat="@drawable/engineering_floor_one"
                 tools:ignore="SpeakableTextPresentCheck" />
 
@@ -122,12 +132,14 @@
 
                 <TextView
                     android:id="@+id/selectARoomTextView"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
                     android:onClick="selectARoomTextView"
                     android:text="Select A Room:"
-                    android:textColor="#000000"
+                    android:background="@color/ui_black"
+                    android:textColor="#FFFFFF"
                     android:textSize="20sp" />
 
                 <Button
@@ -142,12 +154,40 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/reservationsListTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:text="Reservations for room currently:"
+                android:background="@color/ui_black"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/currentReservationsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@color/ui_black"
+                android:gravity="center"
+                android:maxLines="4"
+                android:minLines="1"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+            <TextView
                 android:id="@+id/textView10"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
                 android:text="Start of Reservation:"
-                android:textColor="#000000"
+                android:background="@color/ui_black"
+                android:textColor="#FFFFFF"
                 android:textSize="20sp" />
 
             <LinearLayout
@@ -183,7 +223,8 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="8dp"
                 android:text="End of Reservation:"
-                android:textColor="#000000"
+                android:background="@color/ui_black"
+                android:textColor="#FFFFFF"
                 android:textSize="20sp" />
 
             <LinearLayout
@@ -222,11 +263,42 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/backToMenuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:onClick="backToMenuButton"
+            android:text="Back To Menu" />
+
         <com.dpizarro.uipicker.library.picker.PickerUI
             android:id="@+id/picker_ui_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:visibility="visible">
+
+        </com.dpizarro.uipicker.library.picker.PickerUI>
+
+        <LinearLayout
+            android:id="@+id/reservationLoadingLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/ui_black"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/ui_black"
+                android:text="Loading..."
+                android:textColor="#FFFFFF"
+                android:textSize="34sp" />
+
+        </LinearLayout>
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/reservationsViewReservations"
+        android:title="View Reservations" />
+    <item
+        android:id="@+id/reservationsLogOut"
+        android:title="Log out" />
+</menu>

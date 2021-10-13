@@ -5,14 +5,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class LoginScreen extends AppCompatActivity {
 
+	ArrayList<Room> allRooms = new ArrayList<>();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,6 +43,75 @@ public class LoginScreen extends AppCompatActivity {
 		signinLayout.setVisibility(View.GONE);
 		signupLayout.setVisibility(View.GONE);
 		forgotPasswordLayout.setVisibility(View.GONE);
+
+		//TODO move to databaseManager
+		String roomIDEndpoint ="http://eccs3421.siatkosky.net:3421"+"/roomsWithInformation"; // 1. Endpoint
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+				(Request.Method.GET, roomIDEndpoint, null,
+						response -> {
+							try{
+								JSONArray roomObjects = response.getJSONArray("roomObjects");
+								System.out.println("HERE");
+								JSONObject eachRoom;
+								for (int i = 0; i<roomObjects.length(); i++){
+									eachRoom = roomObjects.getJSONObject(i);
+									Room returnedRoom = new Room();
+									// List of items to set in the room object
+									// 1. roomID
+									try {
+										returnedRoom.setRoomID(eachRoom.getInt("roomID"));
+									}catch(JSONException e){
+										System.out.println("RoomID error"+eachRoom);
+									}
+									// 2. shortName
+									try {
+									returnedRoom.setShortName(eachRoom.getString("shortName"));
+									}catch(JSONException e){
+										System.out.println("Shortname error"+eachRoom);
+									}
+									// 3. roomName
+									returnedRoom.setRoomName(eachRoom.getString("roomName"));
+									// 4. description
+									returnedRoom.setDescription(eachRoom.getString("description"));
+									// 5. floor
+									returnedRoom.setFloor(eachRoom.getInt("floor"));
+									// 6. boundaryCoordinates Arraylist
+									JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
+									ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
+									JSONObject eachXYZCoordinate;
+									for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
+										try {
+											eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(j);
+											roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("LocationX"),
+													eachXYZCoordinate.getInt("LocationY"), eachXYZCoordinate.getInt("LocationZ")));
+										}catch (JSONException jsonException){
+											jsonException.printStackTrace();
+											System.out.println("boundaryCoordinatesError "+eachRoom);
+										}
+									}
+									returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
+									// 7. reservable
+									try {
+										if("True".equals(eachRoom.getString("reservable"))){
+											returnedRoom.setReservable(true);
+										}else{
+											returnedRoom.setReservable(false);
+										}
+										//returnedRoom.setReservable(response.getBoolean("reservable"));
+									}catch(JSONException e){
+										e.printStackTrace();
+										System.out.println("reservable boolean error "+eachRoom);
+									}
+									allRooms.add(returnedRoom);
+								}
+								System.out.println(allRooms.size());
+							}catch(Exception e){
+								e.printStackTrace();
+							}
+						}, error -> { System.out.println("Error "+error.toString());
+				});
+		// Add the request to the queue, which will complete eventually
+		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
 	}
 
 	// This is the functionality when they first enter the app.
@@ -52,8 +132,7 @@ public class LoginScreen extends AppCompatActivity {
 	}
 	public void guestButton(View view){
 		//TODO make sure to pass a GuestUser as the extra along with this startActivity later
-		Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
-		startActivity(intent);
+		DatabaseManager.getInstance().getAllRoomsAndProceedToMenuGuest(this);
 	}
 	// ------------------------------------------- END Title Portion -----------------------------------------------
 
@@ -66,18 +145,13 @@ public class LoginScreen extends AppCompatActivity {
 		// Make sure neither are blank
 		if(emailLoginEditText.getText().toString().equals("")||passwordLoginEditText.getText().toString().equals("")){
 			Toast.makeText(LoginScreen.this, "Email and Password are required.", Toast.LENGTH_LONG).show();
+			return;
 		}
 
-		// TODO: More input sanitation here before we send it to our database (or webserver)
-
-		// TODO: Replace here the code we use for account management
-		// Else we can ensure the credentials are authentic, use our special database method here
-		//if(){
-
-		//}else{
-			//Toast.makeText(LoginScreen.this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
-		//}
+		// TODO: More input sanitation here before we send it to our webserver
+		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText,allRooms);
 	}
+
 	public void forgotPasswordButton(View view){
 		//TODO add animation to pressing the sign in button
 		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
@@ -102,11 +176,8 @@ public class LoginScreen extends AppCompatActivity {
 		if(emailPasswordResetEditText.getText().toString().equals("")){
 			Toast.makeText(LoginScreen.this, "Email is required.", Toast.LENGTH_LONG).show();
 		}
-
 		//TODO: More input sanitation here before we send it to our database (or webserver)
-
-		//Reset the user's password somehow.
-
+		//TODO: Reset the user's password somehow.
 	}
 	public void returnToSigninButton(View view){
 		//TODO add animation to pressing the sign in button
@@ -121,14 +192,17 @@ public class LoginScreen extends AppCompatActivity {
 	// This is the functionality when they press Sign-Up
 	// ----------------------------------------------- Sign-Up Portion -----------------------------------------------
 	public void signupButton(View view){
+
+		EditText firstNameSignUpEditText        = (EditText)findViewById(R.id.firstNameSignUpEditText);
+		EditText lastNameSignUpEditText         = (EditText)findViewById(R.id.lastNameSignUpEditText);
 		EditText emailSignupEditText          	= (EditText)findViewById(R.id.emailSignupEditText);
 		EditText passwordSignupEditText         = (EditText)findViewById(R.id.passwordSignupEditText);
 		EditText confirmPasswordSignupEditText  = (EditText)findViewById(R.id.confirmPasswordSignupEditText);
-		RadioGroup studentTeacherRadioGroup 		= (RadioGroup) findViewById(R.id.studentTeacherRadioGroup);
 
 		// Make sure none are blank
 		if(emailSignupEditText.getText().toString().equals("")||passwordSignupEditText.getText().toString().equals("")
-				||confirmPasswordSignupEditText.getText().toString().equals("")||studentTeacherRadioGroup.getCheckedRadioButtonId()==View.NO_ID){
+				||confirmPasswordSignupEditText.getText().toString().equals("")||firstNameSignUpEditText.getText().toString().equals("")
+				||lastNameSignUpEditText.getText().toString().equals("")){
 			Toast.makeText(LoginScreen.this, "All fields are required.", Toast.LENGTH_LONG).show();
 		}
 		// Make sure passwords match
@@ -138,15 +212,7 @@ public class LoginScreen extends AppCompatActivity {
 
 		// TODO: More input sanitation here before we send it to our database (or webserver)
 
-		// Now check if the username matches another in the database (if the user doesn't exist... make the account)
-		// Use our special database method here
-
-		// Else if the username does already exist
-		//if(){
-
-		//}else{
-			//Toast.makeText(LoginScreen.this, "Username taken, enter a different username", Toast.LENGTH_LONG).show();
-		//}
+		DatabaseManager.getInstance().loginPageRegister(this,emailSignupEditText,passwordSignupEditText,firstNameSignUpEditText,lastNameSignUpEditText);
 	}
 	public void returnToTitleButton2(View view){
 		//TODO add animation to pressing the sign in button
@@ -156,25 +222,5 @@ public class LoginScreen extends AppCompatActivity {
 		signinSignupLayout.setVisibility(View.VISIBLE);
 	}
 	// ----------------------------------------------- END Sign-Up Portion -----------------------------------------------
-
-	/**
-	 * This login function is used to login a 'Guest' user. This function will call LoginHelper, which can then tell that nothing was passed
-	 * and it will create and return the relevant GuestUser Object that you will pass around the app using the getExtra function.
-	 * @return A filled GuestUser object.
-	 */
-	public GuestUser login(){
-		return null;
-	}
-
-	/**
-	 * This login function is used to login a registered user. This function will call LoginHelper, which will then check the database using
-	 * DatabaseManager and eventually return a filled RegisteredUser object that you will pass around.
-	 * @param username The username of the user, which will most likely be pulled from the EditText and sanitized
-	 * @param password The password of the user, which will most likely be pulled from the EditText and sanitized
-	 * @return A filled RegisterUser Object
-	 */
-	public RegisteredUser login(String username, String password){
-		return null;
-	}
 
 }

@@ -1,10 +1,17 @@
 package edu.onu.kennedy_map;
 
-public class GuestUser extends AbstractUser{
+import java.io.Serializable;
+
+public class GuestUser extends AbstractUser implements Serializable {
     private final String username = "GUEST";
-    private final int userID = 1;
+    private final int userID = -1;
 
     public String showGuestInfo(){
         return null;
+    }
+
+    @Override
+    public int getUserID() {
+        return userID;
     }
 }
