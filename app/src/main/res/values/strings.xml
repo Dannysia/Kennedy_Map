@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Kennedy_Map</string>
     <string name="title"><![CDATA[Engineering Building Navigation & Scheduling]]></string>
+    <string name="floor_1_CD">Floor 1 of the Engineering Building</string>
 </resources>

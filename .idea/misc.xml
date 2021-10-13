@@ -3,14 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/drawable/button_border.xml" value="0.2703125" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/layout/login_screen.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/layout/main_screen.xml" value="0.24010416666666667" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/layout/menu_screen.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/layout/path_screen.xml" value="0.14945652173913043" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/layout/reservation_screen.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/layout/sign_in.xml" value="0.25" />
-        <entry key="..\:/Users/Public/AndroidStudioProjects/Kennedy_Map/app/src/main/res/menu/main_screen_menu.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/mnopa/Documents/AndroidStudio/Projects/app/src/main/res/layout/login_screen.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/mnopa/Documents/AndroidStudio/Projects/app/src/main/res/layout/menu_screen.xml" value="0.4" />
+        <entry key="..\:/Users/mnopa/Documents/AndroidStudio/Projects/app/src/main/res/layout/path_screen.xml" value="0.264" />
+        <entry key="..\:/Users/mnopa/Documents/AndroidStudio/Projects/app/src/main/res/layout/reservation_screen.xml" value="0.4" />
+        <entry key="..\:/Users/mnopa/Documents/AndroidStudio/Projects/app/src/main/res/layout/sample_canvas_view.xml" value="0.12916666666666668" />
+        <entry key="..\:/Users/mnopa/Documents/AndroidStudio/Projects/app/src/main/res/layout/sign_in.xml" value="0.264" />
       </map>
     </option>
   </component>
