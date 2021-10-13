@@ -1,5 +1,6 @@
 package edu.onu.kennedy_map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
@@ -9,6 +10,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.dpizarro.uipicker.library.picker.PickerUI;
@@ -17,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,7 +50,7 @@ public class DatabaseManager {
      * @param emailInput The EditText containing the email.
      * @param passwordInput The EditText containing the password.
      */
-    public void loginPageLogin(Activity currentScreen, EditText emailInput, EditText passwordInput){
+    public void loginPageLogin(Activity currentScreen, EditText emailInput, EditText passwordInput, ArrayList<Room> allRooms){
         String authenticationEndpoint =ENDPOINT+"/login"; // 1. Endpoint
         JSONObject requestBody=null;
         try {
@@ -73,6 +79,7 @@ public class DatabaseManager {
                                 RegisteredUser registeredUser = new RegisteredUser(returnedUserID.get(),null);
                                 System.out.println(returnedUserID.get());
                                 intent.putExtra("user",registeredUser);
+                                intent.putExtra("rooms",allRooms);
                                 currentScreen.startActivity(intent);
                             }
                             else if(returnedUserID.get()==0) {
@@ -168,6 +175,11 @@ public class DatabaseManager {
                                 for (int i = 0; i<roomIdsJSON.length(); i++){
                                     roomIDs.add((String)roomIdsJSON.get(i));
                                 }
+
+
+                                //TODO add here the for loop for each roomID to get each shortName and populate the roomIDs arraylist
+
+
                                 PickerUI roomPicker = currentScreen.findViewById(R.id.picker_ui_view);
                                 PickerUISettings pickerUISettings = new PickerUISettings.Builder()
                                         .withItems(roomIDs)
@@ -204,9 +216,26 @@ public class DatabaseManager {
      * @param currentScreen The current screen the user is on. The ReservationScreen will be passed.
      * @param valueResult The selected Room in the dropdown menu.
      * @param pressedButton The button that is pressed to activate the dropdown menu.
+     * @param allRooms The arraylist of all the rooms
      */
-    public void reservationPageSelectedRoom(Activity currentScreen, String valueResult, Button pressedButton){
-        String reservationsInRoomEndpoint = ENDPOINT+"/reservations/room/"+valueResult; // 1. Endpoint
+    public void reservationPageSelectedRoom(Activity currentScreen, String valueResult, Button pressedButton, ArrayList<Room> allRooms){
+
+        // Need to convert the valueResult from shortName back into roomID
+        String roomIDToQuery="";
+        for (Room room : allRooms){
+            if(valueResult.equals(room.getShortName())){
+                roomIDToQuery = ""+room.getRoomID();
+            }
+        }
+        if(roomIDToQuery.equals("")){
+            try {
+                throw new Exception();
+            }catch(Exception e){
+                System.out.println("Error, no shortname matches a room in the list");
+            }
+        }
+        String reservationsInRoomEndpoint = ENDPOINT+"/reservations/room/"+roomIDToQuery; // 1. Endpoint
+        System.out.println(roomIDToQuery);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, reservationsInRoomEndpoint, null,
                         response -> {
@@ -214,18 +243,29 @@ public class DatabaseManager {
                                 //Take the JSONArray, for each JSONObject of that array, form a string that will be printed
                                 //TODO Change name of JSON to whatever danny makes it
                                 ArrayList<String> finishedRoomStrings = new ArrayList<>();
-                                JSONArray currentRoomReservationsJSONArray = response.getJSONArray("currentRoomReservations");
+                                JSONArray currentRoomReservationsJSONArray=null;
+                                try {
+                                    currentRoomReservationsJSONArray = response.getJSONArray("currentRoomReservations");
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
                                 ArrayList<JSONObject> currentReservationsJSONObjects = new ArrayList<>();
                                 for(int i=0; i<currentRoomReservationsJSONArray.length(); i++){
+
                                     JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
-                                    finishedRoomStrings.add(currentRoomReservationJSONData.get("StartTime")+" - "+currentRoomReservationJSONData.get("EndTime"));
+                                    finishedRoomStrings.add(currentRoomReservationJSONData.get("startTime")+" - "+currentRoomReservationJSONData.get("endTime")+"\n");
                                 }
-                                TextView currentReservationsTextView = (TextView) currentScreen.findViewById(R.id.currentReservationsTextView);
-                                StringBuilder finishedRoomStringDisplay= new StringBuilder();
-                                for(String roomString : finishedRoomStrings){
-                                    finishedRoomStringDisplay.append(roomString);
+                                if(currentRoomReservationsJSONArray.length()==0){
+                                    TextView currentReservationsTextView = (TextView) currentScreen.findViewById(R.id.currentReservationsTextView);
+                                    currentReservationsTextView.setText("No Current Reservations");
+                                }else {
+                                    TextView currentReservationsTextView = (TextView) currentScreen.findViewById(R.id.currentReservationsTextView);
+                                    StringBuilder finishedRoomStringDisplay = new StringBuilder();
+                                    for (String roomString : finishedRoomStrings) {
+                                        finishedRoomStringDisplay.append(roomString);
+                                    }
+                                    currentReservationsTextView.setText(finishedRoomStringDisplay.toString());
                                 }
-                                currentReservationsTextView.setText(finishedRoomStringDisplay.toString());
                                 // Remove loading screen
                                 LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
                                 loadingLinearLayout.setVisibility(View.GONE);
@@ -242,13 +282,32 @@ public class DatabaseManager {
             // Purposefully blank
         });
         pressedButton.setText(valueResult);
-        ImageView reservationScreenRoomImageView = (ImageView)currentScreen.findViewById(R.id.reservationScreenRoomImageView);
+        ImageView reservationScreenRoomImageView = currentScreen.findViewById(R.id.reservationScreenRoomImageView);
         // Regex here in case one of the roomID return with the a letter appended to the end
-        final Pattern pattern = Pattern.compile("(\\w{3}\\d{3}).*");
-        Matcher matcher = pattern.matcher(valueResult);
-        String searchRoom = matcher.group(1);
+        String searchRoom;
+        switch(valueResult){
+            case "Crown Innovation Center":
+                searchRoom="crown_innovation_center";
+                break;
+            case "Terrace":
+                searchRoom="terrace";
+                break;
+            case "Huddle":
+                searchRoom="huddle";
+                break;
+            case "Engineering Activities Room":
+                searchRoom="engineering_activities_room";
+                break;
+            default:
+                Pattern pattern = Pattern.compile("(\\w{3}\\d{3}).*");
+                Matcher matcher = pattern.matcher(valueResult.trim());;
+                matcher.find();
+                searchRoom = matcher.group(1);
+                System.out.println(valueResult);
+        }
         // If null is thrown here something is up with either my regex or the picker
-        reservationScreenRoomImageView.setImageResource(currentScreen.getResources().getIdentifier(searchRoom.toLowerCase(),"drawable",currentScreen.getPackageName()));
+        reservationScreenRoomImageView.setImageResource(currentScreen.getResources().getIdentifier(searchRoom.toLowerCase(),
+                "drawable",currentScreen.getPackageName()));
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
 
@@ -258,7 +317,7 @@ public class DatabaseManager {
      * @param currentScreen The current screen the user is on. The ReservationScreen will be passed.
      * @param currentUser The currently logged in user, passed from screen to screen using putExtra.
      */
-    public void reservationPageReserveRoom(Activity currentScreen, RegisteredUser currentUser){
+    public void reservationPageReserveRoom(Activity currentScreen, RegisteredUser currentUser, ArrayList<Room> allRooms){
         String makeAReservationEndpoint = ENDPOINT+"/reservations/create"; // 1. Endpoint
         JSONObject requestBody=null;
         try {
@@ -270,7 +329,21 @@ public class DatabaseManager {
                 Toast.makeText(currentScreen, "Please select a room.", Toast.LENGTH_LONG).show();
                 return;
             }
-            requestBody.put("roomID", selectRoomButton.getText().toString());
+            String valueResult = selectRoomButton.getText().toString();
+            String roomIDToQuery="";
+            for (Room room : allRooms){
+                if(valueResult.equals(room.getShortName())){
+                    roomIDToQuery = ""+room.getRoomID();
+                }
+            }
+            if(roomIDToQuery.equals("")){
+                try {
+                    throw new Exception();
+                }catch(Exception e){
+                    System.out.println("Error, no shortname matches a room in the list");
+                }
+            }
+            requestBody.put("roomID", roomIDToQuery);
             requestBody.put("ownerID", currentUser.getUserID());
 
             DateTimeFormatter inputFormattedStart = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -281,7 +354,7 @@ public class DatabaseManager {
             TextView startHour  = currentScreen.findViewById(R.id.startHour);
             TextView startMinute  = currentScreen.findViewById(R.id.startMinute);
             String startSecond  = "00";
-            LocalTime convertToRealTimeStart = LocalTime.from(inputFormattedStart.parse(startYear.getText().toString()+
+            LocalDateTime convertToRealTimeStart = LocalDateTime.from(inputFormattedStart.parse(startYear.getText().toString()+
                     startMonth.getText().toString()+startDay.getText().toString()+startHour.getText().toString()+
                     startMinute.getText().toString()+startSecond));
             String dateTimeFormatStart = outputFormatterStart.format(convertToRealTimeStart);
@@ -295,13 +368,13 @@ public class DatabaseManager {
             TextView endHour  = currentScreen.findViewById(R.id.endHour);
             TextView endMinute  = currentScreen.findViewById(R.id.endMinute);
             String endSecond  = "00";
-            LocalTime convertToRealTimeEnd = LocalTime.from(inputFormattedEnd.parse(endYear.getText().toString()+
+            LocalDateTime convertToRealTimeEnd = LocalDateTime.from(inputFormattedEnd.parse(endYear.getText().toString()+
                     endMonth.getText().toString()+endDay.getText().toString()+endHour.getText().toString()+
                     endMinute.getText().toString()+endSecond));
             String dateTimeFormatEnd = outputFormatterEnd.format(convertToRealTimeEnd);
             requestBody.put("end_time", dateTimeFormatEnd);
 
-            // Make sure reservation isn't for the past
+            //TODO Make sure reservation isn't for the past
 
 
             System.out.println("Sent Content: "+requestBody.toString());
@@ -345,12 +418,13 @@ public class DatabaseManager {
      * @param currentScreen The current screen the user is on. The ViewReservationsScreen will be passed.
      * @param currentUser The currently logged in user, passed from screen to screen using putExtra.
      * @param recyclerViewAdapter The recyclerViewAdapter to fill with information.
+     * @param allRooms List of all the rooms
      */
-    public void viewReservationPagePopulateRecyclerView(Activity currentScreen, RegisteredUser currentUser, RecyclerViewAdapter recyclerViewAdapter){
+    public void viewReservationPagePopulateRecyclerView(Activity currentScreen, RegisteredUser currentUser,RecyclerViewAdapter recyclerViewAdapter, ArrayList<Room> allRooms){
         String authenticationEndpoint = ENDPOINT+"/reservations/user/"+
                 currentUser.getUserID(); // 1. Endpoint
         ArrayList<ReservationHolder> reservationHolders = new ArrayList<>();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+        @SuppressLint("NotifyDataSetChanged") JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, authenticationEndpoint, null,
                         response -> {
                             try{
@@ -359,9 +433,26 @@ public class DatabaseManager {
                                 for (int i = 0; i<userReservations.length(); i++){
                                     JSONObject reservation = userReservations.getJSONObject(i);
                                     ReservationHolder reservationHolder = new ReservationHolder();
+
+                                    // Convert roomID to shortName
+                                    String roomShortName="";
+                                    String roomID = reservation.getString("roomID");
+                                    for (Room room : allRooms){
+                                        if(roomID.equals(Integer.toString(room.getRoomID()))){
+                                            roomShortName = room.getShortName();
+                                        }
+                                    }
+                                    if(roomShortName.equals("")){
+                                        try {
+                                            throw new Exception();
+                                        }catch(Exception e){
+                                            System.out.println("Error, no roomID matches a room in the list");
+                                        }
+                                    }
+
                                     reservationHolder.setReservationIDRoomIDUserIDStartTimeEndTime(reservation.getInt("reservationID"),
-                                            reservation.getString("roomID"),reservation.getInt("userID"),
-                                            reservation.getString("start_time"),reservation.getString("end_time"));
+                                            roomShortName,reservation.getInt("userID"),
+                                            reservation.getString("startTime"),reservation.getString("endTime"));
                                     reservationHolders.add(reservationHolder);
                                 }
                                 ReservationHolder[] reservationHolders1 = new ReservationHolder[reservationHolders.size()];
@@ -370,7 +461,8 @@ public class DatabaseManager {
                                 }
                                 System.out.println("Recieved Content: "+userReservations);
                                 recyclerViewAdapter.setAllUserReservations(reservationHolders1);
-                            }catch(Exception ignored){ }
+                                recyclerViewAdapter.notifyDataSetChanged();
+                            }catch(Exception e){ e.printStackTrace();}
                         }, error -> { System.out.println("Error "+error.toString());
                 });
         //TODO pop up waiting symbol, until the response is received.
@@ -378,4 +470,106 @@ public class DatabaseManager {
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
+
+    public void getAllRoomsAndProceedToMenuGuest(Activity currentScreen){
+        String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
+        JSONObject requestBody=null;
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, roomIDEndpoint, null,
+                        response -> {
+                            try{
+                                JSONArray roomObjects = response.getJSONArray("roomObjects");
+                                ArrayList<Room> allRooms = new ArrayList<>();
+                                JSONObject eachRoom;
+                                for (int i = 0; i<roomObjects.length(); i++){
+                                    eachRoom = roomObjects.getJSONObject(i);
+                                    Room returnedRoom = new Room();
+                                    // List of items to set in the room object
+                                    // 1. roomID
+                                    returnedRoom.setRoomID(eachRoom.getInt("roomID"));
+                                    // 2. shortName
+                                    returnedRoom.setShortName(eachRoom.getString("shortName"));
+                                    // 3. roomName
+                                    returnedRoom.setRoomName(eachRoom.getString("roomName"));
+                                    // 4. description
+                                    returnedRoom.setDescription(eachRoom.getString("description"));
+                                    // 5. floor
+                                    returnedRoom.setFloor(eachRoom.getInt("floor"));
+                                    // 6. boundaryCoordinates Arraylist
+                                    JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
+                                    ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
+                                    JSONObject eachXYZCoordinate;
+                                    for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
+                                        eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(i);
+                                        roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("locationX"),
+                                                eachXYZCoordinate.getInt("locationY"),eachXYZCoordinate.getInt("locationZ")));
+
+                                    }
+                                    returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
+                                    // 7. reservable
+                                    returnedRoom.setReservable(response.getBoolean("reservable"));
+                                    allRooms.add(returnedRoom);
+                                }
+                                // Now proceed to menu
+                                Intent intent = new Intent(currentScreen, MenuScreen.class);
+                                GuestUser guestUser = new GuestUser();
+                                intent.putExtra("user",guestUser);
+                                intent.putExtra("rooms",allRooms);
+                                currentScreen.startActivity(intent);
+
+                            }catch(Exception ignored){
+                            }
+                        }, error -> { System.out.println("Line 519 Error "+error.toString());
+                });
+        // Add the request to the queue, which will complete eventually
+        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
+    }
+
+    public void getAllRooms(Activity currentScreen){
+        String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, roomIDEndpoint, null,
+                        response -> {
+                            try{
+                                JSONArray roomObjects = response.getJSONArray("roomObjects");
+                                System.out.println("HERE");
+                                ArrayList<Room> allRooms = new ArrayList<>();
+                                JSONObject eachRoom;
+                                for (int i = 0; i<roomObjects.length(); i++){
+                                    eachRoom = roomObjects.getJSONObject(i);
+                                    Room returnedRoom = new Room();
+                                    // List of items to set in the room object
+                                    // 1. roomID
+                                    returnedRoom.setRoomID(eachRoom.getInt("roomID"));
+                                    // 2. shortName
+                                    returnedRoom.setShortName(eachRoom.getString("shortName"));
+                                    // 3. roomName
+                                    returnedRoom.setRoomName(eachRoom.getString("roomName"));
+                                    // 4. description
+                                    returnedRoom.setDescription(eachRoom.getString("description"));
+                                    // 5. floor
+                                    returnedRoom.setFloor(eachRoom.getInt("floor"));
+                                    // 6. boundaryCoordinates Arraylist
+                                    JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
+                                    ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
+                                    JSONObject eachXYZCoordinate;
+                                    for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
+                                        eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(i);
+                                        roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("locationX"),
+                                                eachXYZCoordinate.getInt("locationY"),eachXYZCoordinate.getInt("locationZ")));
+                                    }
+                                    returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
+                                    // 7. reservable
+                                    returnedRoom.setReservable(response.getBoolean("reservable"));
+                                    allRooms.add(returnedRoom);
+                                }
+
+                            }catch(Exception ignored){
+                            }
+                        }, error -> { System.out.println("Error "+error.toString());
+                });
+        // Add the request to the queue, which will complete eventually
+        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
+    }
+
 }

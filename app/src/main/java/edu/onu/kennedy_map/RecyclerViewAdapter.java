@@ -29,6 +29,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private Activity screen;
     public RecyclerViewAdapter(Intent intent, Activity screen){
         this.intent=intent;
+        this.screen=screen;
     }
 
     public static class RecyclerAdapterViewHolder extends RecyclerView.ViewHolder{
@@ -106,6 +107,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     }});
                 // Create the AlertDialog
                 AlertDialog dialog = builder.create();
+                dialog.show();
             });
         }
 
@@ -146,7 +148,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapterViewHolder holder, int position) {
-        holder.bind(allUserReservations[position],screen);
+        holder.bind(allUserReservations[position],this.screen);
     }
 
     @Override

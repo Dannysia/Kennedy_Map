@@ -2,6 +2,7 @@ package edu.onu.kennedy_map;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,9 +14,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
+@SuppressWarnings("unchecked")
 public class MenuScreen extends AppCompatActivity {
 
     AbstractUser authenticatedUser;
+    ArrayList<Room> allRooms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +28,8 @@ public class MenuScreen extends AppCompatActivity {
         setTitle("Main Menu                           Options:"); // pro code
         // use getExtra to get either the GuestUser or RegisteredUser and store it in authenticatedUser
         authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
-        Toast.makeText(MenuScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
+        allRooms = (ArrayList<Room>) getIntent().getSerializableExtra("rooms");
+        //Toast.makeText(MenuScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
         setContentView(R.layout.menu_screen);
 
 
@@ -61,6 +67,7 @@ public class MenuScreen extends AppCompatActivity {
         if(authenticatedUser.getUserID()!=-1){
             Intent intent = new Intent(MenuScreen.this, ReservationScreen.class);
             intent.putExtra("user",authenticatedUser);
+            intent.putExtra("rooms",allRooms);
             startActivity(intent);
         }else{
             Toast.makeText(MenuScreen.this, "Guests cannot make Reservations", Toast.LENGTH_LONG).show();
@@ -69,6 +76,7 @@ public class MenuScreen extends AppCompatActivity {
     public void pathFindButton(View view){
         Intent intent = new Intent(MenuScreen.this, PathScreen.class);
         intent.putExtra("user",authenticatedUser);
+        intent.putExtra("rooms",allRooms);
         startActivity(intent);
     }
 

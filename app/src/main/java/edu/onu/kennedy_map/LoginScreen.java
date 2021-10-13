@@ -13,14 +13,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoginScreen extends AppCompatActivity {
 
+	ArrayList<Room> allRooms = new ArrayList<>();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,6 +43,75 @@ public class LoginScreen extends AppCompatActivity {
 		signinLayout.setVisibility(View.GONE);
 		signupLayout.setVisibility(View.GONE);
 		forgotPasswordLayout.setVisibility(View.GONE);
+
+		//TODO move to databaseManager
+		String roomIDEndpoint ="http://eccs3421.siatkosky.net:3421"+"/roomsWithInformation"; // 1. Endpoint
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+				(Request.Method.GET, roomIDEndpoint, null,
+						response -> {
+							try{
+								JSONArray roomObjects = response.getJSONArray("roomObjects");
+								System.out.println("HERE");
+								JSONObject eachRoom;
+								for (int i = 0; i<roomObjects.length(); i++){
+									eachRoom = roomObjects.getJSONObject(i);
+									Room returnedRoom = new Room();
+									// List of items to set in the room object
+									// 1. roomID
+									try {
+										returnedRoom.setRoomID(eachRoom.getInt("roomID"));
+									}catch(JSONException e){
+										System.out.println("RoomID error"+eachRoom);
+									}
+									// 2. shortName
+									try {
+									returnedRoom.setShortName(eachRoom.getString("shortName"));
+									}catch(JSONException e){
+										System.out.println("Shortname error"+eachRoom);
+									}
+									// 3. roomName
+									returnedRoom.setRoomName(eachRoom.getString("roomName"));
+									// 4. description
+									returnedRoom.setDescription(eachRoom.getString("description"));
+									// 5. floor
+									returnedRoom.setFloor(eachRoom.getInt("floor"));
+									// 6. boundaryCoordinates Arraylist
+									JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
+									ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
+									JSONObject eachXYZCoordinate;
+									for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
+										try {
+											eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(j);
+											roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("LocationX"),
+													eachXYZCoordinate.getInt("LocationY"), eachXYZCoordinate.getInt("LocationZ")));
+										}catch (JSONException jsonException){
+											jsonException.printStackTrace();
+											System.out.println("boundaryCoordinatesError "+eachRoom);
+										}
+									}
+									returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
+									// 7. reservable
+									try {
+										if("True".equals(eachRoom.getString("reservable"))){
+											returnedRoom.setReservable(true);
+										}else{
+											returnedRoom.setReservable(false);
+										}
+										//returnedRoom.setReservable(response.getBoolean("reservable"));
+									}catch(JSONException e){
+										e.printStackTrace();
+										System.out.println("reservable boolean error "+eachRoom);
+									}
+									allRooms.add(returnedRoom);
+								}
+								System.out.println(allRooms.size());
+							}catch(Exception e){
+								e.printStackTrace();
+							}
+						}, error -> { System.out.println("Error "+error.toString());
+				});
+		// Add the request to the queue, which will complete eventually
+		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
 	}
 
 	// This is the functionality when they first enter the app.
@@ -60,10 +132,7 @@ public class LoginScreen extends AppCompatActivity {
 	}
 	public void guestButton(View view){
 		//TODO make sure to pass a GuestUser as the extra along with this startActivity later
-		Intent intent = new Intent(LoginScreen.this, MenuScreen.class);
-		GuestUser guestUser = new GuestUser();
-		intent.putExtra("user",guestUser);
-		startActivity(intent);
+		DatabaseManager.getInstance().getAllRoomsAndProceedToMenuGuest(this);
 	}
 	// ------------------------------------------- END Title Portion -----------------------------------------------
 
@@ -80,8 +149,7 @@ public class LoginScreen extends AppCompatActivity {
 		}
 
 		// TODO: More input sanitation here before we send it to our webserver
-
-		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText);
+		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText,allRooms);
 	}
 
 	public void forgotPasswordButton(View view){

@@ -35,18 +35,47 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unchecked")
 public class ReservationScreen extends AppCompatActivity {
 
     AbstractUser authenticatedUser;
+    ArrayList<Room> allRooms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
-        Toast.makeText(ReservationScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
+        allRooms = (ArrayList<Room>) getIntent().getSerializableExtra("rooms");
+        //Toast.makeText(ReservationScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
         setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
 
-        DatabaseManager.getInstance().reservationPageLoadRooms(this);
+        //TODO we can worry about moving all this stuff to the rooms class later
+
+        //Populate dropdown
+        //DatabaseManager.getInstance().reservationPageLoadRooms(this);
+        PickerUI roomPicker = findViewById(R.id.picker_ui_view);
+        ArrayList<Room> reservableRooms = new ArrayList<>();
+        ArrayList<String> roomShortNames = new ArrayList<>();
+
+        for (Room room : allRooms){
+            if(room.isReservable()){
+                reservableRooms.add(room);
+            }
+        }
+        for (int i = 0; i<reservableRooms.size();i++){
+            roomShortNames.add(reservableRooms.get(i).getShortName());
+        }
+
+        PickerUISettings pickerUISettings = new PickerUISettings.Builder()
+                .withItems(roomShortNames)
+                .withAutoDismiss(false)
+                .withItemsClickables(false)
+                .withUseBlur(false)
+                .build();
+
+        roomPicker.setSettings(pickerUISettings);
+        LinearLayout loadingLinearLayout = findViewById(R.id.reservationLoadingLinearLayout);
+        loadingLinearLayout.setVisibility(View.GONE);
     }
 
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
@@ -160,9 +189,9 @@ public class ReservationScreen extends AppCompatActivity {
             @Override
             public void onItemClickPickerUI(int which, int position, String valueResult) {
                 // Query the database for the reservations for the selected room
-                if(valueResult != null && valueResult.equals("")){
-
-                    DatabaseManager.getInstance().reservationPageSelectedRoom(ReservationScreen.this,valueResult,selectRoomButton);
+                if(valueResult != null && !valueResult.equals("")){
+                    System.out.println(valueResult);
+                    DatabaseManager.getInstance().reservationPageSelectedRoom(ReservationScreen.this,valueResult,selectRoomButton,allRooms);
                 }
             }
         });
@@ -193,7 +222,7 @@ public class ReservationScreen extends AppCompatActivity {
         startActivity(intent1);
     }
     public void reserveConfirmButton(View view){
-       DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser);
+       DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser,allRooms);
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu
@@ -208,6 +237,7 @@ public class ReservationScreen extends AppCompatActivity {
             case R.id.reservationsViewReservations:
                 Intent intent1 = new Intent(this, ViewReservationsScreen.class);
                 intent1.putExtra("user",authenticatedUser);
+                intent1.putExtra("rooms",allRooms);
                 startActivity(intent1);
                 return true;
             case R.id.reservationsLogOut:
