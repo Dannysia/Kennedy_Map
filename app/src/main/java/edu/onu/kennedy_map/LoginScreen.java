@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoginScreen extends AppCompatActivity {
 
+	// TODO add button debouncing
+
 	ArrayList<Room> allRooms = new ArrayList<>();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
