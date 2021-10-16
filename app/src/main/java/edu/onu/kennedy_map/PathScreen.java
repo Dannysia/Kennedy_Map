@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,13 +19,25 @@ import java.util.ArrayList;
 public class PathScreen extends AppCompatActivity {
 
     // TODO On path Screen xml, add an arrow pointing right that lets users know its scrollable
-
+    private DrawableSurfaceView floor1DSV;
+    private DrawableSurfaceView floor2DSV;
+    private DrawableSurfaceView floor3DSV;
+    private PathFind pathFind;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Path Finding                        Options:");
         setContentView(R.layout.path_screen);
+
+        //TODO Added
+        //Get all the surface views and store them
+        floor1DSV = findViewById(R.id.Floor1DSV);
+        //floor2DSV = findViewById(...);
+        //floor2DSV = findViewById(...);
+
+        //TODO Added
+        pathFind = new PathFind(this, floor1DSV, floor2DSV, floor3DSV);
 
         //TODO change this list to the rooms we want to be reservable later
         ArrayList<String> rooms = new ArrayList<>();
@@ -44,7 +57,6 @@ public class PathScreen extends AppCompatActivity {
                 .withItemsClickables(false)
                 .withUseBlur(false)
                 .build();
-
         startingRoomPicker.setSettings(pickerUISettings);
         endingRoomPicker.setSettings(pickerUISettings);
     }
@@ -70,7 +82,16 @@ public class PathScreen extends AppCompatActivity {
 
     // TODO: Call path find algorithm, then update imageViews appropriately
     public void pathFindCalculateButton(View view){
+        //TODO Added
+        pathFind.initialize();
 
+        //Pathfind returns true if a path was found and false if there is no path
+        //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
+        if(pathFind.pathFindBetween(startRoom, endRoom)){
+            Log.d("PathFind", "debugClick: Path Found!");
+        } else {
+            Log.d("PathFind", "debugClick: Path NOT Found!");
+        }
     }
 
     public void pathFindTitleTextView(View view){
