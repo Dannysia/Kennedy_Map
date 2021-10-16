@@ -16,6 +16,7 @@ import com.dpizarro.uipicker.library.picker.PickerUISettings;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("unchecked")
 public class PathScreen extends AppCompatActivity {
 
     // TODO On path Screen xml, add an arrow pointing right that lets users know its scrollable
@@ -24,35 +25,32 @@ public class PathScreen extends AppCompatActivity {
     private DrawableSurfaceView floor3DSV;
     private PathFind pathFind;
 
+    ArrayList<Room> allRooms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Path Finding                        Options:");
+        allRooms = (ArrayList<Room>)getIntent().getSerializableExtra("rooms");
         setContentView(R.layout.path_screen);
 
         //TODO Added
         //Get all the surface views and store them
-        floor1DSV = findViewById(R.id.Floor1DSV);
-        //floor2DSV = findViewById(...);
-        //floor2DSV = findViewById(...);
+        floor1DSV = findViewById(R.id.floor1DSV);
+        floor2DSV = findViewById(R.id.floor2DSV);
+        floor2DSV = findViewById(R.id.floor3DSV);
 
         //TODO Added
         pathFind = new PathFind(this, floor1DSV, floor2DSV, floor3DSV);
 
-        //TODO change this list to the rooms we want to be reservable later
-        ArrayList<String> rooms = new ArrayList<>();
-        rooms.add("Test1");
-        rooms.add("Test2");
-        rooms.add("Test3");
-        rooms.add("Test4");
-        rooms.add("Test5");
-        rooms.add("Test6");
-        rooms.add("Test7");
-        rooms.add("Test8");
+        //TODO change this list to the rooms later
+        ArrayList<String> roomShortNames = new ArrayList<>();
+        for (int i = 0; i<allRooms.size();i++){
+            roomShortNames.add(allRooms.get(i).getShortName());
+        }
         PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
         PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
         PickerUISettings pickerUISettings = new PickerUISettings.Builder()
-                .withItems(rooms)
+                .withItems(roomShortNames)
                 .withAutoDismiss(false)
                 .withItemsClickables(false)
                 .withUseBlur(false)
@@ -65,7 +63,7 @@ public class PathScreen extends AppCompatActivity {
         Button pathFindRoomOneButton = (Button) findViewById(R.id.pathFindRoomOneButton);
         PickerUI startingRoomPicker = (PickerUI) findViewById(R.id.startingRoomPicker);
         startingRoomPicker.setOnClickItemPickerUIListener((which, position, valueResult) -> {
-            //TODO: Add so where it zooms in on the room based on the selection, gonna resize all the images to 1000x1000 to do this easy
+
             pathFindRoomOneButton.setText(valueResult);
         });
         startingRoomPicker.slide(0);
@@ -74,7 +72,7 @@ public class PathScreen extends AppCompatActivity {
         Button pathFindRoomTwoButton = (Button) findViewById(R.id.pathFindRoomTwoButton);
         PickerUI endingRoomPicker = (PickerUI) findViewById(R.id.endingRoomPicker);
         endingRoomPicker.setOnClickItemPickerUIListener((which, position, valueResult) -> {
-            //TODO: Add so where it zooms in on the room based on the selection, gonna resize all the images to 1000x1000 to do this easy
+
             pathFindRoomTwoButton.setText(valueResult);
         });
         endingRoomPicker.slide(0);
@@ -82,16 +80,38 @@ public class PathScreen extends AppCompatActivity {
 
     // TODO: Call path find algorithm, then update imageViews appropriately
     public void pathFindCalculateButton(View view){
+        // Using the name of the selected rooms in the buttons, get the Room object from the arraylist and pass to algorithm
+        Button pathFindRoomOneButton = findViewById(R.id.pathFindRoomOneButton);
+        Button pathFindRoomTwoButton = findViewById(R.id.pathFindRoomTwoButton);
+        Room startRoom=null;
+        Room endRoom=null;
+
+        for (Room room : allRooms){
+            if(pathFindRoomOneButton.getText().equals(room.getShortName())){
+                startRoom = room;
+            }
+        }
+        for (Room room : allRooms){
+            if(pathFindRoomTwoButton.getText().equals(room.getShortName())){
+                endRoom = room;
+            }
+        }
+
+
         //TODO Added
         pathFind.initialize();
 
         //Pathfind returns true if a path was found and false if there is no path
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
+
+
         if(pathFind.pathFindBetween(startRoom, endRoom)){
             Log.d("PathFind", "debugClick: Path Found!");
         } else {
             Log.d("PathFind", "debugClick: Path NOT Found!");
         }
+
+
     }
 
     public void pathFindTitleTextView(View view){
@@ -153,7 +173,6 @@ public class PathScreen extends AppCompatActivity {
         switch (item.getItemId()){
             // Add cases with the buttonID as you need more menu options
             case R.id.menuLogOut:
-                logout();
                 Intent intent2 = new Intent(this, LoginScreen.class);
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent2);
@@ -163,11 +182,5 @@ public class PathScreen extends AppCompatActivity {
         }
     }
     // ---------------------- END stuff used for top-right dropdown menu
-
-    //TODO: This might or might not be used, we might have to do some clean-up when the menu logout button is pressed.
-    public boolean logout(){
-        return false;
-    }
-
 
 }

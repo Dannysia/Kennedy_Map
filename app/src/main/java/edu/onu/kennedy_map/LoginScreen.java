@@ -134,7 +134,11 @@ public class LoginScreen extends AppCompatActivity {
 	}
 	public void guestButton(View view){
 		//TODO make sure to pass a GuestUser as the extra along with this startActivity later
-		DatabaseManager.getInstance().getAllRoomsAndProceedToMenuGuest(this);
+		Intent intent = new Intent(this, MenuScreen.class);
+		GuestUser guestUser = new GuestUser();
+		intent.putExtra("user",guestUser);
+		intent.putExtra("rooms",allRooms);
+		this.startActivity(intent);
 	}
 	// ------------------------------------------- END Title Portion -----------------------------------------------
 
