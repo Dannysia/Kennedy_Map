@@ -22,48 +22,66 @@
                 android:id="@+id/reservationViewRoomIDTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="JLK205"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/reservationViewStartTime"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="10:00 AM"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView21"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="to"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/reservationViewEndTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="11:00 AM"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/reservationViewStartTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center|left"
+                        android:text="10:00 AM"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/textView21"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="left"
+                        android:text="to"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/reservationViewEndTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:text="11:00 AM"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/reservationViewCancelButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cancel" />
+                android:text="Cancel"
+                android:textSize="14sp" />
 
         </LinearLayout>
 
