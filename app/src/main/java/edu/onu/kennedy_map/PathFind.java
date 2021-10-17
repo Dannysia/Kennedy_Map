@@ -55,9 +55,9 @@ public class PathFind {
                 nodes.get(i).get(j).setNodeType(boundaryBitMap.getColor(i, j).equals(Color.valueOf(Color.BLACK)) ? NodeType.BARRIER : NodeType.UNASSIGNED);
 
                 //Can be uncommented to see the boundary initialize (must uncomment the clear at end of function to use)
-                /*if (nodes.get(i).get(j).getNodeType() == NodeType.BARRIER) {
-                    //floor1DSV.drawNode(nodes.get(i).get(j));
-                }*/
+                if (nodes.get(i).get(j).getNodeType() == NodeType.BARRIER) {
+                    floor1DSV.drawNode(nodes.get(i).get(j));
+                }
             }
         }
 
