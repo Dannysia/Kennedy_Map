@@ -29,6 +29,8 @@ public class AnimationThread extends Thread{
         int frameCount = 0;
         long targetTime = 1000/FPS;
 
+        // Don't want to render when scrolling
+
         while (running){
             startTime = System.nanoTime();
             canvas = null;

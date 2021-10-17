@@ -1,15 +1,21 @@
 package edu.onu.kennedy_map;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.dpizarro.uipicker.library.picker.PickerUI;
 import com.dpizarro.uipicker.library.picker.PickerUISettings;
@@ -20,11 +26,9 @@ import java.util.ArrayList;
 public class PathScreen extends AppCompatActivity {
 
     // TODO On path Screen xml, add an arrow pointing right that lets users know its scrollable
-    private DrawableSurfaceView floor1DSV;
-    private DrawableSurfaceView floor2DSV;
-    private DrawableSurfaceView floor3DSV;
-    private PathFind pathFind;
 
+    private DrawableSurfaceView floorDSV;
+    private PathFind pathFind;
     ArrayList<Room> allRooms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +37,13 @@ public class PathScreen extends AppCompatActivity {
         allRooms = (ArrayList<Room>)getIntent().getSerializableExtra("rooms");
         setContentView(R.layout.path_screen);
 
-        //TODO Added
-        //Get all the surface views and store them
-        floor1DSV = findViewById(R.id.floor1DSV);
-        floor2DSV = findViewById(R.id.floor2DSV);
-        floor2DSV = findViewById(R.id.floor3DSV);
+        // Initialize Pathfind
+        // Get all the surface views and store them
 
-        //TODO Added
-        pathFind = new PathFind(this, floor1DSV, floor2DSV, floor3DSV);
+        floorDSV = findViewById(R.id.floorDSV);
+        pathFind = new PathFind(this, floorDSV);
 
-        //TODO change this list to the rooms later
+        // Initialize Pickers
         ArrayList<String> roomShortNames = new ArrayList<>();
         for (int i = 0; i<allRooms.size();i++){
             roomShortNames.add(allRooms.get(i).getShortName());
@@ -57,6 +58,7 @@ public class PathScreen extends AppCompatActivity {
                 .build();
         startingRoomPicker.setSettings(pickerUISettings);
         endingRoomPicker.setSettings(pickerUISettings);
+
     }
 
     public void pathFindRoomOneButton(View view){
@@ -76,6 +78,15 @@ public class PathScreen extends AppCompatActivity {
             pathFindRoomTwoButton.setText(valueResult);
         });
         endingRoomPicker.slide(0);
+    }
+    public void pathFindImageView(View view){
+        PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
+        PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
+        if(startingRoomPicker.isPanelShown()){
+            startingRoomPicker.slide();
+        }else if(endingRoomPicker.isPanelShown()){
+            endingRoomPicker.slide();
+        }
     }
 
     // TODO: Call path find algorithm, then update imageViews appropriately
@@ -104,7 +115,7 @@ public class PathScreen extends AppCompatActivity {
         //Pathfind returns true if a path was found and false if there is no path
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
 
-
+/*
         if(pathFind.pathFindBetween(startRoom, endRoom)){
             Log.d("PathFind", "debugClick: Path Found!");
         } else {
@@ -112,46 +123,26 @@ public class PathScreen extends AppCompatActivity {
         }
 
 
+ */
+
+    }
+    public void pathFloorOneRadioButton(View view){
+        ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
+        pathFindImageView.setImageResource(R.drawable.floor_1);
+        //floorDSV.changeFloorCMD(1);
+    }
+    public void pathFloorTwoRadioButton(View view){
+        ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
+        pathFindImageView.setImageResource(R.drawable.floor_2);
+        //floorDSV.changeFloorCMD(2);
+    }
+    public void pathFloorThreeRadioButton(View view){
+        ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
+        pathFindImageView.setImageResource(R.drawable.floor_3);
+        //floorDSV.changeFloorCMD(3);
     }
 
     public void pathFindTitleTextView(View view){
-        PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
-        PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
-        if(startingRoomPicker.isPanelShown()){
-            startingRoomPicker.slide();
-        }else if(endingRoomPicker.isPanelShown()){
-            endingRoomPicker.slide();
-        }
-    }
-
-    public void imageViewScrollView(View view){
-        PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
-        PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
-        if(startingRoomPicker.isPanelShown()){
-            startingRoomPicker.slide();
-        }else if(endingRoomPicker.isPanelShown()){
-            endingRoomPicker.slide();
-        }
-    }
-    public void pathFindThirdFloorImage(View view){
-        PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
-        PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
-        if(startingRoomPicker.isPanelShown()){
-            startingRoomPicker.slide();
-        }else if(endingRoomPicker.isPanelShown()){
-            endingRoomPicker.slide();
-        }
-    }
-    public void pathFindSecondFloorImage(View view){
-        PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
-        PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
-        if(startingRoomPicker.isPanelShown()){
-            startingRoomPicker.slide();
-        }else if(endingRoomPicker.isPanelShown()){
-            endingRoomPicker.slide();
-        }
-    }
-    public void pathFindFirstFloorImage(View view){
         PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
         PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
         if(startingRoomPicker.isPanelShown()){
