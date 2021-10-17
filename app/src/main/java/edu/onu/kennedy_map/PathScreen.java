@@ -59,7 +59,6 @@ public class PathScreen extends AppCompatActivity {
                 .build();
         startingRoomPicker.setSettings(pickerUISettings);
         endingRoomPicker.setSettings(pickerUISettings);
-
     }
 
     public void pathFindRoomOneButton(View view){
