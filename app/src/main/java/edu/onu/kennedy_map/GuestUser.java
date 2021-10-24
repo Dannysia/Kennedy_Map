@@ -9,9 +9,4 @@ public class GuestUser extends AbstractUser implements Serializable {
     public String showGuestInfo(){
         return null;
     }
-
-    @Override
-    public int getUserID() {
-        return userID;
-    }
 }

@@ -19,6 +19,11 @@ public class RegisteredUser extends AbstractUser implements Serializable {
         this.userInfo = userInfo;
     }
 
+    public RegisteredUser(String username, int userID){
+        this.username=username;
+        this.userID=userID;
+    }
+
     /**
      * Returns the value in the HashMap using the passed key
      * @param infoID The key

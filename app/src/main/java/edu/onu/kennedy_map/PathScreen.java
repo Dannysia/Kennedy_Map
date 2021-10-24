@@ -107,30 +107,30 @@ public class PathScreen extends AppCompatActivity {
         //Pathfind returns true if a path was found and false if there is no path
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
 
-
+/*
         if(pathFind.pathFindBetween(startRoom, endRoom)){
             Log.d("PathFind", "debugClick: Path Found!");
         } else {
             Log.d("PathFind", "debugClick: Path NOT Found!");
         }
-
+*/
 
 
     }
     public void pathFloorOneRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_1);
-        floorDSV.changeFloorCMD(1);
+        //floorDSV.changeFloorCMD(1);
     }
     public void pathFloorTwoRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_2);
-        floorDSV.changeFloorCMD(2);
+        //floorDSV.changeFloorCMD(2);
     }
     public void pathFloorThreeRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_3);
-        floorDSV.changeFloorCMD(3);
+        //floorDSV.changeFloorCMD(3);
     }
 
     public void pathFindTitleTextView(View view){
