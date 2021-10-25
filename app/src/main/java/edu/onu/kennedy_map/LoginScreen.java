@@ -136,7 +136,7 @@ public class LoginScreen extends AppCompatActivity {
 	public void guestButton(View view){
 		//TODO make sure to pass a GuestUser as the extra along with this startActivity later
 		Intent intent = new Intent(this, MenuScreen.class);
-		GuestUser guestUser = new GuestUser();
+		GuestUser guestUser = (GuestUser) new ConcreteGuestUserCreator().createUser("GUEST",-1);
 		intent.putExtra("user",guestUser);
 		intent.putExtra("rooms",allRooms);
 		this.startActivity(intent);

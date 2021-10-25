@@ -76,7 +76,7 @@ public class DatabaseManager {
                             if(returnedUserID.get()!=0){
                                 Intent intent = new Intent(currentScreen, MenuScreen.class);
                                 // RegisteredUser is created with userID received and userInfo(not used)
-                                RegisteredUser registeredUser = new RegisteredUser(returnedUserID.get(),null);
+                                RegisteredUser registeredUser = (RegisteredUser) new ConcreteRegisteredUserCreator().createUser(null,returnedUserID.get());
                                 System.out.println(returnedUserID.get());
                                 intent.putExtra("user",registeredUser);
                                 intent.putExtra("rooms",allRooms);
@@ -156,58 +156,6 @@ public class DatabaseManager {
             // Purposefully blank
         });
         // Add the request to the queue, which will complete eventually
-        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
-    }
-
-    /**
-     * This sends a GET request to our API in order to return a list of reservable rooms that will populate the dropdown menu.
-     * @param currentScreen The current screen the user is on. The ReservationScreen will be passed.
-     */
-    public void reservationPageLoadRooms(Activity currentScreen){
-        String reservableRoomsEndpoint = ENDPOINT+"/rooms/reservable"; // 1. Endpoint
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, reservableRoomsEndpoint, null,
-                        response -> {
-                            try{
-                                //TODO Change name of JSON to whatever danny makes it
-                                ArrayList<String> roomIDs = new ArrayList<>();
-                                JSONArray roomIdsJSON = response.getJSONArray("reservableRooms");
-                                for (int i = 0; i<roomIdsJSON.length(); i++){
-                                    roomIDs.add((String)roomIdsJSON.get(i));
-                                }
-
-
-                                //TODO add here the for loop for each roomID to get each shortName and populate the roomIDs arraylist
-
-
-                                PickerUI roomPicker = currentScreen.findViewById(R.id.picker_ui_view);
-                                PickerUISettings pickerUISettings = new PickerUISettings.Builder()
-                                        .withItems(roomIDs)
-                                        .withAutoDismiss(false)
-                                        .withItemsClickables(false)
-                                        .withUseBlur(false)
-                                        .build();
-
-                                roomPicker.setSettings(pickerUISettings);
-                                LinearLayout loadingLinearLayout = currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
-                                loadingLinearLayout.setVisibility(View.GONE);
-                            }catch(Exception e){
-                                e.printStackTrace();
-                                Toast.makeText(currentScreen, "Error with received content", Toast.LENGTH_LONG).show();
-                            }
-                        }, error -> {
-                    LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
-                    loadingLinearLayout.setVisibility(View.GONE);
-                    Toast.makeText(currentScreen, "Unable to load content. Try again later.", Toast.LENGTH_LONG).show();
-                    System.out.println("Line 84 Error "+error.toString());
-                });
-        // Loading Screen that is there until data arrives
-        LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
-        loadingLinearLayout.setVisibility(View.VISIBLE);
-        loadingLinearLayout.setClickable(true);
-        loadingLinearLayout.setOnClickListener(listener ->{
-            // Purposefully blank
-        });
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
 
@@ -323,7 +271,7 @@ public class DatabaseManager {
         try {
             requestBody = new JSONObject();
             Button selectRoomButton = currentScreen.findViewById(R.id.selectRoomButton);
-            // Make sure selection is not blank
+            //TODO Make sure selections are not blank
             if(selectRoomButton.getText().toString().equals("")||
                     selectRoomButton.getText().toString().equalsIgnoreCase("SELECT A ROOM")){
                 Toast.makeText(currentScreen, "Please select a room.", Toast.LENGTH_LONG).show();
@@ -467,107 +415,6 @@ public class DatabaseManager {
                 });
         //TODO pop up waiting symbol, until the response is received.
 
-        // Add the request to the queue, which will complete eventually
-        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
-    }
-
-    public void getAllRoomsAndProceedToMenuGuest(Activity currentScreen){
-        String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
-        JSONObject requestBody=null;
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, roomIDEndpoint, null,
-                        response -> {
-                            try{
-                                JSONArray roomObjects = response.getJSONArray("roomObjects");
-                                ArrayList<Room> allRooms = new ArrayList<>();
-                                JSONObject eachRoom;
-                                for (int i = 0; i<roomObjects.length(); i++){
-                                    eachRoom = roomObjects.getJSONObject(i);
-                                    Room returnedRoom = new Room();
-                                    // List of items to set in the room object
-                                    // 1. roomID
-                                    returnedRoom.setRoomID(eachRoom.getInt("roomID"));
-                                    // 2. shortName
-                                    returnedRoom.setShortName(eachRoom.getString("shortName"));
-                                    // 3. roomName
-                                    returnedRoom.setRoomName(eachRoom.getString("roomName"));
-                                    // 4. description
-                                    returnedRoom.setDescription(eachRoom.getString("description"));
-                                    // 5. floor
-                                    returnedRoom.setFloor(eachRoom.getInt("floor"));
-                                    // 6. boundaryCoordinates Arraylist
-                                    JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
-                                    ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
-                                    JSONObject eachXYZCoordinate;
-                                    for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
-                                        eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(i);
-                                        roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("locationX"),
-                                                eachXYZCoordinate.getInt("locationY"),eachXYZCoordinate.getInt("locationZ")));
-
-                                    }
-                                    returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
-                                    // 7. reservable
-                                    returnedRoom.setReservable(response.getBoolean("reservable"));
-                                    allRooms.add(returnedRoom);
-                                }
-                                // Now proceed to menu
-                                Intent intent = new Intent(currentScreen, MenuScreen.class);
-                                GuestUser guestUser = new GuestUser();
-                                intent.putExtra("user",guestUser);
-                                intent.putExtra("rooms",allRooms);
-                                currentScreen.startActivity(intent);
-
-                            }catch(Exception ignored){
-                            }
-                        }, error -> { System.out.println("Line 519 Error "+error.toString());
-                });
-        // Add the request to the queue, which will complete eventually
-        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
-    }
-
-    public void getAllRooms(Activity currentScreen){
-        String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, roomIDEndpoint, null,
-                        response -> {
-                            try{
-                                JSONArray roomObjects = response.getJSONArray("roomObjects");
-                                System.out.println("HERE");
-                                ArrayList<Room> allRooms = new ArrayList<>();
-                                JSONObject eachRoom;
-                                for (int i = 0; i<roomObjects.length(); i++){
-                                    eachRoom = roomObjects.getJSONObject(i);
-                                    Room returnedRoom = new Room();
-                                    // List of items to set in the room object
-                                    // 1. roomID
-                                    returnedRoom.setRoomID(eachRoom.getInt("roomID"));
-                                    // 2. shortName
-                                    returnedRoom.setShortName(eachRoom.getString("shortName"));
-                                    // 3. roomName
-                                    returnedRoom.setRoomName(eachRoom.getString("roomName"));
-                                    // 4. description
-                                    returnedRoom.setDescription(eachRoom.getString("description"));
-                                    // 5. floor
-                                    returnedRoom.setFloor(eachRoom.getInt("floor"));
-                                    // 6. boundaryCoordinates Arraylist
-                                    JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
-                                    ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
-                                    JSONObject eachXYZCoordinate;
-                                    for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
-                                        eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(i);
-                                        roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("locationX"),
-                                                eachXYZCoordinate.getInt("locationY"),eachXYZCoordinate.getInt("locationZ")));
-                                    }
-                                    returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
-                                    // 7. reservable
-                                    returnedRoom.setReservable(response.getBoolean("reservable"));
-                                    allRooms.add(returnedRoom);
-                                }
-
-                            }catch(Exception ignored){
-                            }
-                        }, error -> { System.out.println("Error "+error.toString());
-                });
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
