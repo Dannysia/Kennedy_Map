@@ -28,13 +28,14 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     private Paint startNodePaint;
     private Paint endNodePaint;
 
+    private int currentFloor = 0;
+
     private float[] transMatrix = new float[6];
     private Rect boundaryRect;
 
     public boolean showDebugBorder = false;
 
-    private ArrayList<ArrayList<DrawNode>> nodesToDraw = new ArrayList<>();
-    private ArrayList<GroupEvent> groupScheduler = new ArrayList<>();
+    private ArrayList<ArrayList<AnimationCMD>> CMDs = new ArrayList<>();
 
     private static class DrawNode{
         private final float x;
@@ -66,29 +67,26 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         }
     }
 
-    private static class GroupEvent {
-        private int groupIndex;
+    private static class AnimationCMD {
+        public DrawNode drawNode;
+        private AnimationCmdType cmdType;
         private long time;
+
         public boolean checked = false;
-        private boolean clearEvent = false;
 
-        public GroupEvent(int groupIndex, long time) {
-            this.groupIndex = groupIndex;
+        public AnimationCMD(DrawNode drawNode, long time, AnimationCmdType cmdType) {
+            this.drawNode = drawNode;
+            this.time = time;
+            this.cmdType = cmdType;
+        }
+
+        public AnimationCMD(DrawNode drawNode, long time) {
+            this.drawNode = drawNode;
             this.time = time;
         }
 
-        public GroupEvent(int groupIndex, long time, boolean clearEvent) {
-            this.groupIndex = groupIndex;
-            this.time = time;
-            this.clearEvent = clearEvent;
-        }
-
-        public int getGroupIndex() {
-            return groupIndex;
-        }
-
-        public void setGroupIndex(int groupIndex) {
-            this.groupIndex = groupIndex;
+        public AnimationCmdType getCmdType() {
+            return cmdType;
         }
 
         public long getTime() {
@@ -115,13 +113,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     }
 
     public void initSize(Bitmap boundaryBitmap){
-        float imageBmpScale;
-
-        if ((float) this.getMeasuredWidth() / boundaryBitmap.getWidth() > (float) this.getMeasuredHeight() / boundaryBitmap.getHeight()){
-            imageBmpScale = (float) this.getMeasuredHeight() / boundaryBitmap.getHeight();
-        } else {
-            imageBmpScale = (float) this.getMeasuredWidth() / boundaryBitmap.getWidth();
-        }
+        float imageBmpScale = Math.min((float) this.getMeasuredWidth() / boundaryBitmap.getWidth(), (float) this.getMeasuredHeight() / boundaryBitmap.getHeight());
 
         transMatrix[TransMatrixID.Width] = boundaryBitmap.getWidth();
         transMatrix[TransMatrixID.Height] = boundaryBitmap.getHeight();
@@ -135,15 +127,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
                 (int) transMatrix[TransMatrixID.yOffset],
                 (int) (transMatrix[TransMatrixID.Width] * transMatrix[TransMatrixID.Scale] + transMatrix[TransMatrixID.xOffset]),
                 (int) (transMatrix[TransMatrixID.Height] * transMatrix[TransMatrixID.Scale] + transMatrix[TransMatrixID.yOffset]));
-    }
 
-    public void clearCanvas(){
-        nodesToDraw.clear();
-        groupScheduler.clear();
-    }
-
-    public void clearCanvas(int delayInMillis){
-        groupScheduler.add(new GroupEvent(nodesToDraw.size() - 1, delayInMillis, true));
     }
 
     private DrawNode pathNodeToDrawNode(PathNode node){
@@ -154,63 +138,80 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
                 transMatrix[TransMatrixID.Scale] / 4);
     }
 
-    public void drawNode(int delayInMillis){
-        if (!nodesToDraw.isEmpty()) {
-            DrawNode drawNode = nodesToDraw.get(nodesToDraw.size() - 1).get(nodesToDraw.get(nodesToDraw.size() - 1).size() - 1);
-            nodesToDraw.get(nodesToDraw.size() - 1).remove(nodesToDraw.get(nodesToDraw.size() - 1).size() - 1);
+    public void drawCMD(PathNode node){
+        AnimationCMD cmd = new AnimationCMD(pathNodeToDrawNode(node), 0, AnimationCmdType.DRAW);
+        int floor;
 
-            nodesToDraw.add(new ArrayList<>());
-            nodesToDraw.get(nodesToDraw.size() - 1).add(drawNode);
-
-            groupScheduler.add(new GroupEvent(nodesToDraw.size() - 1, delayInMillis));
+        switch (node.getZ()){
+            case 0:
+                floor = 0;
+                break;
+            case 2:
+                floor = 1;
+                break;
+            case 4:
+                floor = 2;
+                break;
+            default:
+                return;
         }
+
+        CMDs.get(floor).add(cmd);
     }
 
-    public void drawNode(PathNode node){
-        DrawNode drawNode = pathNodeToDrawNode(node);
+    public void clearCMD(int delayInMillis){
+        AnimationCMD cmd = new AnimationCMD(null, delayInMillis, AnimationCmdType.CLEAR);
 
-        if (nodesToDraw.isEmpty()) {
-            nodesToDraw.add(new ArrayList<>());
-        }
-
-        nodesToDraw.get(nodesToDraw.size() - 1).add(drawNode);
+        CMDs.get(0).add(cmd);
+        CMDs.get(1).add(cmd);
+        CMDs.get(2).add(cmd);
     }
 
-    public void drawNode(PathNode node, int delayInMillis){
-        DrawNode drawNode = pathNodeToDrawNode(node);
+    public void waitCMD(int delayInMillis){
+        AnimationCMD cmd = new AnimationCMD(null, delayInMillis, AnimationCmdType.WAIT);
 
-        nodesToDraw.add(new ArrayList<>());
-        nodesToDraw.get(nodesToDraw.size() - 1).add(drawNode);
+        CMDs.get(0).add(cmd);
+        CMDs.get(1).add(cmd);
+        CMDs.get(2).add(cmd);
+    }
 
-        groupScheduler.add(new GroupEvent(nodesToDraw.size() - 1, delayInMillis));
+    public void changeFloorCMD(int floor){
+        currentFloor = floor - 1;
     }
 
     private void renderNodes(Canvas canvas){
-        for (int groupIndex = 0; groupIndex < nodesToDraw.size(); groupIndex++){
-            if (!groupScheduler.isEmpty()) {
-                if (groupIndex == groupScheduler.get(0).getGroupIndex()) {
-                    if(!groupScheduler.get(0).checked) {
-                        groupScheduler.get(0).checked = true;
-                        groupScheduler.get(0).setTime(groupScheduler.get(0).getTime() + System.currentTimeMillis());
+        for (int cmdIndex = 0; cmdIndex < CMDs.get(currentFloor).size(); cmdIndex++){
+            if (CMDs.get(currentFloor) != null) {
+                //Store the current node with respect to the current floor
+                AnimationCMD currentCMD = CMDs.get(currentFloor).get(cmdIndex);
+                if (currentCMD.cmdType == AnimationCmdType.CLEAR || currentCMD.cmdType == AnimationCmdType.WAIT){
+                    if (!currentCMD.checked){
+                        //if this is the first time this node has been checked, mark it as checked and set the time to pass to the specified delay + current time
+                        currentCMD.checked = true;
+                        currentCMD.setTime(currentCMD.getTime() + System.currentTimeMillis());
                         return;
-                    } else if (groupScheduler.get(0).checked && System.currentTimeMillis() >= groupScheduler.get(0).getTime()){
-                        if (groupScheduler.get(0).clearEvent){
-                            nodesToDraw.subList(0, groupIndex).clear();
-                            groupScheduler.remove(0);
-                            for(GroupEvent event : groupScheduler){
-                                event.setGroupIndex(event.getGroupIndex() - (groupIndex + 1));
+                    }
+
+                    //if we are beyond out time to pass then do the relevant actions based on the CMD
+                    if (currentCMD.time <= System.currentTimeMillis()){
+                        switch (currentCMD.cmdType){
+                        case CLEAR:
+                            if (cmdIndex == 0){
+                                CMDs.get(currentFloor).remove(cmdIndex);
+                            } else {
+                                CMDs.get(currentFloor).subList(0, cmdIndex).clear();
                             }
                             return;
+                        case WAIT:
+                            CMDs.get(currentFloor).remove(cmdIndex);
+                            break;
                         }
-                        groupScheduler.remove(0);
                     } else {
                         return;
                     }
-                }
-            }
-
-            for (DrawNode node : nodesToDraw.get(groupIndex)){
-                switch (node.getNodeType()) {
+                } else {
+                    DrawNode node = currentCMD.drawNode;
+                    switch (node.getNodeType()) {
                     case OPEN:
                         canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), openNodePaint);
                         break;
@@ -234,6 +235,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
                     default:
                         //canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), barrierNodePaint);
                         break;
+                    }
                 }
             }
         }
@@ -242,6 +244,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     public void update(){
         //anything that runs per tick that isn't a drawcall (the number of drawcalls = the number of times update runs)
         Log.d("Rendering", "update: happened");
+        while (CMDs.size() < 3) CMDs.add(new ArrayList<>());
     }
 
     @Override

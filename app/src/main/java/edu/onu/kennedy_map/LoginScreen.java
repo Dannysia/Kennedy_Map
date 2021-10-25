@@ -92,6 +92,7 @@ public class LoginScreen extends AppCompatActivity {
 										}
 									}
 									returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
+									returnedRoom.setCenter(returnedRoom.getBoundaryCoordinates());
 									// 7. reservable
 									try {
 										if("True".equals(eachRoom.getString("reservable"))){

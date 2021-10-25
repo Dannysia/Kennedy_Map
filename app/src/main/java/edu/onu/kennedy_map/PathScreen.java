@@ -21,7 +21,6 @@ import java.util.ArrayList;
 public class PathScreen extends AppCompatActivity {
 
     // TODO On path Screen xml, add an arrow pointing right that lets users know its scrollable
-
     private DrawableSurfaceView floorDSV;
     private PathFind pathFind;
     ArrayList<Room> allRooms;
@@ -34,6 +33,8 @@ public class PathScreen extends AppCompatActivity {
 
         // Initialize Pathfind
         // Get all the surface views and store them
+        //TODO Added
+        //Get all the surface views and store them
 
         floorDSV = findViewById(R.id.floorDSV);
         pathFind = new PathFind(this, floorDSV);
@@ -104,18 +105,14 @@ public class PathScreen extends AppCompatActivity {
 
         pathFind.initialize();
 
+        //TODO change from logd to user GUI popup?
         //Pathfind returns true if a path was found and false if there is no path
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
-
-
         if(pathFind.pathFindBetween(startRoom, endRoom)){
             Log.d("PathFind", "debugClick: Path Found!");
         } else {
             Log.d("PathFind", "debugClick: Path NOT Found!");
         }
-
-
-
     }
     public void pathFloorOneRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);

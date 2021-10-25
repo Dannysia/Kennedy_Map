@@ -1,7 +1,5 @@
 package edu.onu.kennedy_map;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 public class PathNode {
@@ -10,9 +8,9 @@ public class PathNode {
     private final int y;
     private final int z;
 
-    private int gScore = Integer.MAX_VALUE;
-    private int hScore = Integer.MAX_VALUE;
-    private int fScore = Integer.MAX_VALUE;
+    private float gScore = Float.MAX_VALUE;
+    private float hScore = Float.MAX_VALUE;
+    private float fScore = Float.MAX_VALUE;
 
     private PathNode cameFrom;
 
@@ -48,19 +46,26 @@ public class PathNode {
 
     private int ManhattanApproximation(PathNode pathNodeA, PathNode pathNodeB) {
         //using Manhattan Approximation to determine Classical H value
-        return Math.abs(pathNodeA.getX() - pathNodeB.getX()) + Math.abs(pathNodeA.getY() - pathNodeB.getY());
+        return Math.abs(pathNodeA.getX() - pathNodeB.getX()) + Math.abs(pathNodeA.getY() - pathNodeB.getY()) + Math.abs(pathNodeA.getZ() - pathNodeB.getZ());
     }
 
-    public int get_gScore() {
+    private float PythagoreanApproximation(PathNode pathNodeA, PathNode pathNodeB) {
+        //using Pythagorean Approximation to determine Classical H value
+        return (float) Math.sqrt(Math.pow(pathNodeA.getX() - pathNodeB.getX(), 2) + Math.pow(pathNodeA.getY() - pathNodeB.getY(), 2) +Math.pow(pathNodeA.getZ() - pathNodeB.getZ(), 2));
+    }
+
+    public float get_gScore() {
         return gScore;
     }
 
     public void set_gScore(PathNode pathNodeA, PathNode pathNodeB) {
         gScore = ManhattanApproximation(pathNodeA,pathNodeB);
+        //gScore = ManhattanApproximation(pathNodeA,pathNodeB);
     }
 
     public boolean tentative_gScore(PathNode otherPathNode, PathNode endNode) {
-        int temp_gScore = ManhattanApproximation(otherPathNode,this) + otherPathNode.get_gScore();
+        float temp_gScore = ManhattanApproximation(otherPathNode,this) + otherPathNode.get_gScore();
+        //float temp_gScore = PythagoreanApproximation(otherPathNode,this) + otherPathNode.get_gScore();
 
         if (temp_gScore < get_gScore()){
             cameFrom = otherPathNode;
@@ -73,15 +78,16 @@ public class PathNode {
         }
     }
 
-    public int get_hScore() {
+    public float get_hScore() {
         return hScore;
     }
 
     public void set_hScore(PathNode pathNodeA, PathNode pathNodeB) {
-        hScore = ManhattanApproximation(pathNodeA,pathNodeB);
+        hScore = ManhattanApproximation(pathNodeA, pathNodeB);
+        //hScore = PythagoreanApproximation(pathNodeA, pathNodeB);
     }
 
-    public int get_fScore() {
+    public float get_fScore() {
         return fScore;
     }
 
@@ -105,12 +111,14 @@ public class PathNode {
         this.nodeType = nodeType;
     }
 
-    public void updateNeighbors(ArrayList<ArrayList<PathNode>> nodes){
+    public void updateNeighbors(ArrayList<ArrayList<ArrayList<PathNode>>> nodes){
         for (int xOffset = -1; xOffset <= 1; xOffset++){
             for (int yOffset = -1; yOffset <= 1; yOffset++){
-                if ((x + xOffset < nodes.size() && x + xOffset >= 0) && (y + yOffset < nodes.get(x).size() && y + yOffset >= 0) && !(xOffset == 0 && yOffset == 0)){ //If our x and y with offsets is a valid node and not the node in question
-                    if (nodes.get(x + xOffset).get(y + yOffset).nodeType != NodeType.BARRIER){ //and not a barrier
-                        neighbors.add(nodes.get(x + xOffset).get(y + yOffset)); //then we have a new neighbor
+                for (int zOffset = -1; zOffset <= 1; zOffset++) {
+                    if ((z + zOffset < nodes.size() && z + zOffset >= 0) && (x + xOffset < nodes.get(z).size() && x + xOffset >= 0) && (y + yOffset < nodes.get(z).get(x).size() && y + yOffset >= 0) && !(xOffset == 0 && yOffset == 0 && zOffset == 0)) { //If our x, y and z with offsets is a valid node and not the node in question
+                        if (nodes.get(z + zOffset).get(x + xOffset).get(y + yOffset).nodeType != NodeType.BARRIER) { //and not a barrier
+                            neighbors.add(nodes.get(z + zOffset).get(x + xOffset).get(y + yOffset)); //then we have a new neighbor
+                        }
                     }
                 }
             }

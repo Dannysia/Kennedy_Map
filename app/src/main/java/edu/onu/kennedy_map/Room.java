@@ -9,6 +9,9 @@ public class Room implements Serializable {
     private String roomName;
     private String description;
     private int floor;
+    private ArrayList<XYZCoordinate> boundaryCoordinates;
+    private XYZCoordinate center;
+    private boolean reservable;
 
     public void setRoomID(int roomID) {
         this.roomID = roomID;
@@ -32,6 +35,7 @@ public class Room implements Serializable {
 
     public void setBoundaryCoordinates(ArrayList<XYZCoordinate> boundaryCoordinates) {
         this.boundaryCoordinates = boundaryCoordinates;
+        setCenter(this.boundaryCoordinates);
     }
 
     public void setReservable(boolean reservable) {
@@ -66,8 +70,30 @@ public class Room implements Serializable {
         return reservable;
     }
 
-    private ArrayList<XYZCoordinate> boundaryCoordinates;
-    private boolean reservable;
+    public XYZCoordinate getCenter() {
+        return center;
+    }
+
+    public void setCenter(XYZCoordinate center) {
+        this.center = center;
+    }
+
+    public void setCenter(ArrayList<XYZCoordinate> boundaryCoordinates) {
+        //takes avg of boundary to get center
+        XYZCoordinate solvedCenter = new XYZCoordinate(0,0,0);
+
+        for (XYZCoordinate coordinate : boundaryCoordinates){
+            solvedCenter.setX(solvedCenter.getX() + coordinate.getX());
+            solvedCenter.setY(solvedCenter.getY() + coordinate.getY());
+            solvedCenter.setZ(solvedCenter.getZ() + coordinate.getZ());
+        }
+
+        solvedCenter.setX(solvedCenter.getX() / boundaryCoordinates.size());
+        solvedCenter.setY(solvedCenter.getY() / boundaryCoordinates.size());
+        solvedCenter.setZ(solvedCenter.getZ() / boundaryCoordinates.size());
+
+        center = solvedCenter;
+    }
 
     public Room(){}
     public Room(int roomID,String shortName,String roomName,String description,int floor,
@@ -78,6 +104,7 @@ public class Room implements Serializable {
         this.description = description;
         this.floor = floor;
         this.boundaryCoordinates = boundaryCoordinates;
+        setCenter(boundaryCoordinates);
         this.reservable = reservable;
     }
 }

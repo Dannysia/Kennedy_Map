@@ -11,91 +11,117 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class PathFind {
-    private final DrawableSurfaceView floor1DSV;
-    private DrawableSurfaceView floor2DSV;
-    private DrawableSurfaceView floor3DSV;
+    private final DrawableSurfaceView drawable;
     private final Context context;
 
-    private ArrayList<ArrayList<PathNode>> nodes = new ArrayList<>();
+    private ArrayList<ArrayList<ArrayList<PathNode>>> nodes = new ArrayList<>();
     private PriorityQueue<PathNode> openSet = new PriorityQueue<>(new NodePriorityComparator());
 
-    public PathFind(Context context, DrawableSurfaceView floor1DSV){
+    public PathFind(Context context, DrawableSurfaceView drawable){
         this.context = context;
-        this.floor1DSV = floor1DSV;
+        this.drawable = drawable;
     }
 
     //Priority Queue Comparator to get the least fScore
     private class NodePriorityComparator implements Comparator<PathNode>{
         @Override
         public int compare(PathNode a, PathNode b){
-            return a.get_fScore() - b.get_fScore();
+            return (int) (a.get_fScore() - b.get_fScore());
         }
     }
 
     public void initialize(){
+        //Handles reset from previous runs
+        nodes.clear();
+        openSet.clear();
+        drawable.clearCMD(0);
+
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         options.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
         options.outColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
 
-        Bitmap boundaryBitMap = BitmapFactory.decodeResource(context.getResources(), R.raw.boundry_floor_1a, options);
-        floor1DSV.initSize(boundaryBitMap);
-        int imageHeight = options.outHeight;
-        int imageWidth = options.outWidth;
+        Bitmap boundaryBitMap1 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_1a, options);
+        pathNodePopulate(boundaryBitMap1, options);
+        drawable.initSize(boundaryBitMap1);
 
-        //Handles reset from previous runs
-        nodes.clear();
-        openSet.clear();
-        floor1DSV.clearCanvas();
+        Bitmap boundaryBitMap2 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_1b, options);
+        pathNodePopulate(boundaryBitMap2, options);
 
-        for (int i = 0; i < imageWidth; i++){
-            nodes.add(new ArrayList<PathNode>());
-            for (int j = 0; j < imageHeight; j++){
-                nodes.get(i).add(j, new PathNode(i, j, 0));
-                nodes.get(i).get(j).setNodeType(boundaryBitMap.getColor(i, j).equals(Color.valueOf(Color.BLACK)) ? NodeType.BARRIER : NodeType.UNASSIGNED);
+        Bitmap boundaryBitMap3 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_2a, options);
+        pathNodePopulate(boundaryBitMap3, options);
 
-                //Can be uncommented to see the boundary initialize (must uncomment the clear at end of function to use)
-                if (nodes.get(i).get(j).getNodeType() == NodeType.BARRIER) {
-                    floor1DSV.drawNode(nodes.get(i).get(j));
-                }
-            }
-        }
+        Bitmap boundaryBitMap4 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_2b, options);
+        pathNodePopulate(boundaryBitMap4, options);
+
+        Bitmap boundaryBitMap5 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_1a, options);
+        pathNodePopulate(boundaryBitMap5, options);
 
         //Populates the neighbors for all nodes (can be done as needed for added efficiency)
-        for(ArrayList<PathNode> column : nodes){
-            for (PathNode node : column){
-                if (node.getNodeType()!=NodeType.BARRIER) {
-                    node.updateNeighbors(nodes);
+        /*for(ArrayList<ArrayList<PathNode>> height : nodes){
+            for(ArrayList<PathNode> column : height) {
+                for (PathNode node : column) {
+                    if (node.getNodeType() != NodeType.BARRIER) {
+                        node.updateNeighbors(nodes);
+                    }
                 }
             }
-        }
+        }*/
 
         //floor1DSV.clearCanvas(1000);
     }
 
+    private void pathNodePopulate(Bitmap boundry, BitmapFactory.Options options){
+        nodes.add(new ArrayList<>());
+        for (int i = 0; i < options.outWidth; i++){
+            nodes.get(nodes.size() - 1).add(new ArrayList<>());
+            for (int j = 0; j < options.outHeight; j++){
+                nodes.get(nodes.size() - 1).get(i).add(j, new PathNode(i, j, nodes.size() - 1));
+                nodes.get(nodes.size() - 1).get(i).get(j).setNodeType(boundry.getColor(i, j).equals(Color.valueOf(Color.BLACK)) ? NodeType.BARRIER : NodeType.UNASSIGNED);
+
+                //Can be uncommented to see the boundary initialize (must uncomment the clear at end of function to use)
+                /*if (nodes.get(nodes.size() - 1).get(i).get(j).getNodeType() == NodeType.BARRIER) {
+                    //drawable.drawCMD(nodes.get(nodes.size() - 1).get(i).get(j));
+                }*/
+            }
+            //drawable.waitCMD(200);
+        }
+        //drawable.clearCMD(2000);
+    }
+
     private void reconstructPath( PathNode start, PathNode end){
         PathNode node = end;
+        ArrayList<PathNode> path = new ArrayList<>();
 
         //Render start and end node
         start.setNodeType(NodeType.START);
-        floor1DSV.drawNode(start, 10);
+        drawable.drawCMD(start);
         end.setNodeType(NodeType.END);
-        floor1DSV.drawNode(end,10);
+        drawable.drawCMD(end);
 
         //Render nodes in path from end to start
         while (node.getCameFrom() != null){
             node.getCameFrom().setNodeType(NodeType.PATH);
-            floor1DSV.drawNode(node.getCameFrom(), 10);
+            path.add(0, node.getCameFrom());
             node = node.getCameFrom();
+        }
+
+        for (PathNode pathNode : path){
+            drawable.drawCMD(pathNode);
+            drawable.waitCMD(1);
         }
     }
 
     //Will be changed to take in start and end rooms (used coordinates for testing)
-    public boolean pathFindBetween(int startNodeX, int startNodeY, int endNodeX, int endNodeY){
-        PathNode startNode = nodes.get(startNodeX).get(startNodeY);
+    public boolean pathFindBetween(Room startRoom, Room endRoom){
+        if (startRoom == null || endRoom == null){return false;}
+
+        PathNode startNode = nodes.get(startRoom.getCenter().getZ()).get(startRoom.getCenter().getX()).get(startRoom.getCenter().getY());
+        //PathNode startNode = nodes.get(0).get(20).get(205); //For Testing ONLY
         startNode.setNodeType(NodeType.START);
 
-        PathNode endNode = nodes.get(endNodeX).get(endNodeY);
+        PathNode endNode = nodes.get(endRoom.getCenter().getZ()).get(endRoom.getCenter().getX()).get(endRoom.getCenter().getY());
+        //PathNode endNode = nodes.get(2).get(148).get(165); //For Testing ONLY
         endNode.setNodeType(NodeType.END);
 
         PathNode currentNode;
@@ -110,33 +136,34 @@ public class PathFind {
         //The set of discovered nodes that may be part of the path and may have neighbors that are part of the path
         openSet.add(startNode);
 
-        floor1DSV.drawNode(startNode);
-        floor1DSV.drawNode(endNode);
+        drawable.drawCMD(startNode);
+        drawable.drawCMD(endNode);
 
         while (!openSet.isEmpty()){
-            floor1DSV.drawNode(startNode);
-            floor1DSV.drawNode(endNode);
+            drawable.drawCMD(startNode);
+            drawable.drawCMD(endNode);
 
             currentNode = openSet.poll();
 
             //The win condition
             if (currentNode.equals(endNode)){
                 //Reconstruct Path
-                floor1DSV.drawNode(50);
-                floor1DSV.clearCanvas(1500);
+                drawable.clearCMD(1000);
                 reconstructPath(startNode, endNode);
                 return true;
             }
 
             //If the current node has any neighbors that would have a better gScore from the current node then that of the current
             //node then set this potential gScore as the new gScore and add this neighbor to the open set
+            currentNode.updateNeighbors(nodes);
             for (PathNode neighbor : currentNode.neighbors){
                 if(neighbor.tentative_gScore(currentNode, endNode)){
                     neighbor.setNodeType(NodeType.OPEN);
                     openSet.add(neighbor);
                 }
-                floor1DSV.drawNode(neighbor);
+                drawable.drawCMD(currentNode);
             }
+            //drawable.waitCMD(0);
 
             //After this iteration the current node will change, so if it's not the start then set it to closed
             if (currentNode.getNodeType() != NodeType.START){
@@ -145,10 +172,9 @@ public class PathFind {
 
             //Done to speedup playback (likely can be improved)
             if (openSet.size() % 150 == 0){
-                floor1DSV.drawNode(50);
+                drawable.waitCMD(1);
             }
         }
-
         return false;
     }
 }
