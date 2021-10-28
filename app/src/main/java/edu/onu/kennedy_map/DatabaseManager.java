@@ -271,6 +271,7 @@ public class DatabaseManager {
         try {
             requestBody = new JSONObject();
             Button selectRoomButton = currentScreen.findViewById(R.id.selectRoomButton);
+
             //TODO Make sure selections are not blank
             if(selectRoomButton.getText().toString().equals("")||
                     selectRoomButton.getText().toString().equalsIgnoreCase("SELECT A ROOM")){
@@ -418,5 +419,6 @@ public class DatabaseManager {
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
+
 
 }

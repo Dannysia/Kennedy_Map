@@ -184,7 +184,47 @@ public class LoginScreen extends AppCompatActivity {
 			Toast.makeText(LoginScreen.this, "Email is required.", Toast.LENGTH_LONG).show();
 		}
 		//TODO: More input sanitation here before we send it to our database (or webserver)
-		//TODO: Reset the user's password somehow.
+		// Add regex test to make sure it is an email
+
+		//TODO: Move this to database helper
+		String authenticationEndpoint ="http://eccs3421.siatkosky.net:3421"+"/account/password/forgot"; // 1. Endpoint
+		JSONObject requestBody=null;
+		try {
+			requestBody = new JSONObject();
+			requestBody.put("email", emailPasswordResetEditText.getText().toString());
+			System.out.println("Sent Content: "+requestBody.toString());
+		}catch (JSONException ignored){ }
+		AtomicBoolean emailSentBoolean = new AtomicBoolean();
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+				(Request.Method.POST, authenticationEndpoint, requestBody,
+						response -> {
+							try{
+								boolean emailSent = response.getBoolean("resetRequestSuccessful");
+								emailSentBoolean.set(emailSent);
+								System.out.println("Recieved Content: "+emailSentBoolean.get());
+								LinearLayout loginLoadingLinearLayout = findViewById(R.id.loginLoadingLinearLayout);
+								loginLoadingLinearLayout.setVisibility(View.GONE);
+							}catch(Exception e){
+								emailSentBoolean.set(false);
+							}
+							if(!emailSentBoolean.get()) {
+								Toast.makeText(this, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
+							}else{
+								Toast.makeText(this, "Email Sent if account exists. Check your inbox/spam folder! ", Toast.LENGTH_LONG).show();
+							}
+						}, error -> { System.out.println("Error "+error.toString());
+				});
+		//Pop-up loading screen
+		LinearLayout loginLoadingLinearLayout = findViewById(R.id.loginLoadingLinearLayout);
+		loginLoadingLinearLayout.setVisibility(View.VISIBLE);
+		loginLoadingLinearLayout.setClickable(true);
+		loginLoadingLinearLayout.setOnClickListener(listener ->{
+			// Purposefully blank
+		});
+		// Add the request to the queue, which will complete eventually
+		APIRequestQueue.getInstance(this).addToRequestQueue(jsonObjectRequest);
+
+
 	}
 	public void returnToSigninButton(View view){
 		//TODO add animation to pressing the sign in button
