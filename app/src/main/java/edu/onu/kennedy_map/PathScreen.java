@@ -9,8 +9,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.dpizarro.uipicker.library.picker.PickerUI;
 import com.dpizarro.uipicker.library.picker.PickerUISettings;
@@ -20,21 +23,18 @@ import java.util.ArrayList;
 @SuppressWarnings("unchecked")
 public class PathScreen extends AppCompatActivity {
 
-    // TODO On path Screen xml, add an arrow pointing right that lets users know its scrollable
     private DrawableSurfaceView floorDSV;
     private PathFind pathFind;
+    private AbstractUser authenticatedUser;
     ArrayList<Room> allRooms;
+    private boolean showAnimation = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Path Finding                        Options:");
+        setTitle("Path Finding            Animation:");
         allRooms = (ArrayList<Room>)getIntent().getSerializableExtra("rooms");
+        authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
         setContentView(R.layout.path_screen);
-
-        // Initialize Pathfind
-        // Get all the surface views and store them
-        //TODO Added
-        //Get all the surface views and store them
 
         floorDSV = findViewById(R.id.floorDSV);
         pathFind = new PathFind(this, floorDSV);
@@ -92,6 +92,12 @@ public class PathScreen extends AppCompatActivity {
         Room startRoom=null;
         Room endRoom=null;
 
+        if(pathFindRoomOneButton.getText().toString().equalsIgnoreCase("CLICK TO SET ROOM")||
+        pathFindRoomTwoButton.getText().toString().equalsIgnoreCase("CLICK TO SET ROOM")){
+            Toast.makeText(this, "Please select start room and end room", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         for (Room room : allRooms){
             if(pathFindRoomOneButton.getText().equals(room.getShortName())){
                 startRoom = room;
@@ -101,6 +107,11 @@ public class PathScreen extends AppCompatActivity {
             if(pathFindRoomTwoButton.getText().equals(room.getShortName())){
                 endRoom = room;
             }
+        }
+
+        if(InputValidation.checkIfStartRoomIsEndRoom(startRoom,endRoom)){
+            Toast.makeText(this, "Start Room is same as End Room", Toast.LENGTH_LONG).show();
+            return;
         }
 
         pathFind.initialize();
@@ -143,18 +154,38 @@ public class PathScreen extends AppCompatActivity {
     // ---------------------- This stuff is used for the top-right dropdown menu
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_screen_menu, menu);
+        inflater.inflate(R.menu.path_screen_menu, menu);
+
         return true;
     }
+
 
     // TODO: Add option to return to Menu screen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             // Add cases with the buttonID as you need more menu options
+            case R.id.menuReturn:
+                Intent intent = new Intent(this, MenuScreen.class);
+                intent.putExtra("user",authenticatedUser);
+                intent.putExtra("rooms",allRooms);
+                startActivity(intent);
             case R.id.menuLogOut:
                 Intent intent2 = new Intent(this, LoginScreen.class);
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent2);
+                return true;
+
+                // TODO this probably doesn't work, fix later
+            case R.id.animation_switch:
+                SwitchCompat animationSwitch = findViewById(R.id.animation_switch);
+                animationSwitch.setOnClickListener(listener ->{
+                    if(animationSwitch.isActivated()){
+                        showAnimation=true;
+                        System.out.println("true");
+                    }else{
+                        showAnimation=false;
+                    }
+                });
                 return true;
             default:
                 return false;

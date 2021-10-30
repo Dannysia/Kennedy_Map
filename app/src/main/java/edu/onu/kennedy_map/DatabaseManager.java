@@ -70,6 +70,9 @@ public class DatabaseManager {
                                 // Remove loading screen
                                 LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.loginLoadingLinearLayout);
                                 loadingLinearLayout.setVisibility(View.GONE);
+                                // Button Debounce off
+                                Button signInButton = currentScreen.findViewById(R.id.signinButton);
+                                signInButton.setEnabled(true);
                             }catch(Exception e){
                                 returnedUserID.set(0);
                             }
@@ -94,6 +97,59 @@ public class DatabaseManager {
         loginLoadingLinearLayout.setOnClickListener(listener ->{
             // Purposefully blank
         });
+        // Button Debounce on
+        Button signInButton = currentScreen.findViewById(R.id.signinButton);
+        signInButton.setEnabled(false);
+        // Add the request to the queue, which will complete eventually
+        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
+    }
+
+    /**
+     * This function sends a POST request to our API in order to let the user reset their password.
+     * @param currentScreen The current screen the user is on. The LoginScreen will be password.
+     * @param emailPasswordResetEditText The edit text that contains the user's password
+     */
+    public void loginPageResetPassword(Activity currentScreen, TextView emailPasswordResetEditText){
+        String authenticationEndpoint =ENDPOINT+"/account/password/forgot"; // 1. Endpoint
+        JSONObject requestBody=null;
+        try {
+            requestBody = new JSONObject();
+            requestBody.put("email", emailPasswordResetEditText.getText().toString());
+            System.out.println("Sent Content: "+requestBody.toString());
+        }catch (JSONException ignored){ }
+        AtomicBoolean emailSentBoolean = new AtomicBoolean();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, authenticationEndpoint, requestBody,
+                        response -> {
+                            try{
+                                boolean emailSent = response.getBoolean("resetRequestSuccessful");
+                                emailSentBoolean.set(emailSent);
+                                System.out.println("Recieved Content: "+emailSentBoolean.get());
+                                LinearLayout loginLoadingLinearLayout = currentScreen.findViewById(R.id.loginLoadingLinearLayout);
+                                loginLoadingLinearLayout.setVisibility(View.GONE);
+                                // Button Debounce off
+                                Button resetPasswordButton = currentScreen.findViewById(R.id.resetPasswordButton);
+                                resetPasswordButton.setEnabled(true);
+                            }catch(Exception e){
+                                emailSentBoolean.set(false);
+                            }
+                            if(!emailSentBoolean.get()) {
+                                Toast.makeText(currentScreen, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
+                            }else{
+                                Toast.makeText(currentScreen, "Email Sent if account exists. Check your inbox/spam folder! ", Toast.LENGTH_LONG).show();
+                            }
+                        }, error -> { System.out.println("Error "+error.toString());
+                });
+        //Pop-up loading screen
+        LinearLayout loginLoadingLinearLayout = currentScreen.findViewById(R.id.loginLoadingLinearLayout);
+        loginLoadingLinearLayout.setVisibility(View.VISIBLE);
+        loginLoadingLinearLayout.setClickable(true);
+        loginLoadingLinearLayout.setOnClickListener(listener ->{
+            // Purposefully blank
+        });
+        // Button Debounce on
+        Button resetPasswordButton = currentScreen.findViewById(R.id.resetPasswordButton);
+        resetPasswordButton.setEnabled(false);
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
@@ -130,6 +186,9 @@ public class DatabaseManager {
                                 // Remove loading screen
                                 LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.loginLoadingLinearLayout);
                                 loadingLinearLayout.setVisibility(View.GONE);
+                                // Button Debounce off
+                                Button signUpButton = currentScreen.findViewById(R.id.signupButton);
+                                signUpButton.setEnabled(true);
                             }catch(Exception e){
                                 successBoolean.set(false);
                             }
@@ -155,6 +214,9 @@ public class DatabaseManager {
         loginLoadingLinearLayout.setOnClickListener(listener ->{
             // Purposefully blank
         });
+        // Button Debounce on
+        Button signUpButton = currentScreen.findViewById(R.id.signupButton);
+        signUpButton.setEnabled(false);
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
@@ -270,14 +332,26 @@ public class DatabaseManager {
         JSONObject requestBody=null;
         try {
             requestBody = new JSONObject();
-            Button selectRoomButton = currentScreen.findViewById(R.id.selectRoomButton);
 
-            //TODO Make sure selections are not blank
+            Button selectRoomButton = currentScreen.findViewById(R.id.selectRoomButton);
+            Button startTimeButton = currentScreen.findViewById(R.id.startTimeButton);
+            Button startDateButton = currentScreen.findViewById(R.id.startDateButton);
+            Button endTimeButton = currentScreen.findViewById(R.id.endTimeButton);
+            Button endDateButton = currentScreen.findViewById(R.id.endDateButton);
+
             if(selectRoomButton.getText().toString().equals("")||
                     selectRoomButton.getText().toString().equalsIgnoreCase("SELECT A ROOM")){
                 Toast.makeText(currentScreen, "Please select a room.", Toast.LENGTH_LONG).show();
                 return;
             }
+            if(startTimeButton.getText().toString().equalsIgnoreCase("Set Start Time")||
+                startDateButton.getText().toString().equalsIgnoreCase("Set Start Date")||
+                endTimeButton.getText().toString().equalsIgnoreCase("Set End Time")||
+                endDateButton.getText().toString().equalsIgnoreCase("Set End Date")){
+                Toast.makeText(currentScreen, "Enter Start Time and Date, and End Time and Date", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             String valueResult = selectRoomButton.getText().toString();
             String roomIDToQuery="";
             for (Room room : allRooms){
@@ -290,6 +364,7 @@ public class DatabaseManager {
                     throw new Exception();
                 }catch(Exception e){
                     System.out.println("Error, no shortname matches a room in the list");
+                    return;
                 }
             }
             requestBody.put("roomID", roomIDToQuery);
@@ -324,7 +399,10 @@ public class DatabaseManager {
             requestBody.put("end_time", dateTimeFormatEnd);
 
             //TODO Make sure reservation isn't for the past
-
+            if(InputValidation.checkIfStartTimeIsGreaterThanOrEqualToEndTime(dateTimeFormatStart,dateTimeFormatEnd)){
+                Toast.makeText(currentScreen, "Please make start date before end date.", Toast.LENGTH_LONG).show();
+                return;
+            }
 
             System.out.println("Sent Content: "+requestBody.toString());
         }catch (JSONException ignored){ }
@@ -346,8 +424,12 @@ public class DatabaseManager {
                             else if(!successBoolean.get()) {
                                 Toast.makeText(currentScreen, "Reservation Unsuccessful, try another time.", Toast.LENGTH_LONG).show();
                             }
+                            // Pop-up loading screen
                             LinearLayout loadingLinearLayout = currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
                             loadingLinearLayout.setVisibility(View.GONE);
+                            // Button Debounce off
+                            Button reserveConfirmButton = currentScreen.findViewById(R.id.reserveConfirmButton);
+                            reserveConfirmButton.setEnabled(true);
                         }, error -> { System.out.println("Line 347 Error "+error.toString());
                 });
         //Pop-up loading screen
@@ -357,7 +439,9 @@ public class DatabaseManager {
         loadingLinearLayout.setOnClickListener(listener ->{
             // Purposefully blank
         });
-
+        // Button Debounce on
+        Button reserveConfirmButton = currentScreen.findViewById(R.id.reserveConfirmButton);
+        reserveConfirmButton.setEnabled(false);
         // Add the request to the queue, which will complete eventually
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }

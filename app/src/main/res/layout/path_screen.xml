@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".PathScreen">
 
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/reservation_background" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,11 +33,13 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
+                android:layout_marginBottom="4dp"
                 android:layout_weight=".20"
                 android:gravity="center"
                 android:onClick="pathFindTitleTextView"
                 android:text="Select two rooms to show the path between them!"
-                android:textColor="#000000"
+                android:background="@color/ui_black"
+                android:textColor="#FFFFFF"
                 android:textSize="24sp" />
 
             <LinearLayout
@@ -133,8 +144,10 @@
                         android:id="@+id/textView13"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:background="@color/ui_black"
                         android:text="Starting Room: "
-                        android:textColor="#000000"
+                        android:textColor="#FFFFFF"
                         android:textSize="24sp" />
 
                     <Button
@@ -156,8 +169,10 @@
                         android:id="@+id/textView14"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:background="@color/ui_black"
                         android:text="Ending Room:   "
-                        android:textColor="#000000"
+                        android:textColor="#FFFFFF"
                         android:textSize="24sp" />
 
                     <Button
@@ -191,13 +206,13 @@
             android:id="@+id/startingRoomPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <com.dpizarro.uipicker.library.picker.PickerUI
             android:id="@+id/endingRoomPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:visibility="gone" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
