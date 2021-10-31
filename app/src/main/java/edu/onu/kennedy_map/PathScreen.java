@@ -28,7 +28,7 @@ public class PathScreen extends AppCompatActivity {
     private DrawableSurfaceView floorDSV;
     private PathFind pathFind;
     private AbstractUser authenticatedUser;
-    ArrayList<Room> allRooms;
+    private ArrayList<Room> allRooms;
     private boolean showAnimation = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

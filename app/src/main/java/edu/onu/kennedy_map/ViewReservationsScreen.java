@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings("unchecked")
 public class ViewReservationsScreen extends AppCompatActivity {
 
-    AbstractUser authenticatedUser;
-    ArrayList<Room> allRooms;
+    private AbstractUser authenticatedUser;
+    private ArrayList<Room> allRooms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

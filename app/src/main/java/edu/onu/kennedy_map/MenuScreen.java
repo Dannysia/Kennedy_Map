@@ -19,8 +19,8 @@ import java.util.ArrayList;
 @SuppressWarnings("unchecked")
 public class MenuScreen extends AppCompatActivity {
 
-    AbstractUser authenticatedUser;
-    ArrayList<Room> allRooms;
+    private AbstractUser authenticatedUser;
+    private ArrayList<Room> allRooms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
