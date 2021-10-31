@@ -60,7 +60,7 @@ public class PathFind {
         Bitmap boundaryBitMap4 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_2b, options);
         pathNodePopulate(boundaryBitMap4, options);
 
-        Bitmap boundaryBitMap5 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_1a, options);
+        Bitmap boundaryBitMap5 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_3a, options);
         pathNodePopulate(boundaryBitMap5, options);
 
         //Populates the neighbors for all nodes (can be done as needed for added efficiency)
