@@ -19,6 +19,8 @@ import com.dpizarro.uipicker.library.picker.PickerUI;
 import com.dpizarro.uipicker.library.picker.PickerUISettings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 @SuppressWarnings("unchecked")
 public class PathScreen extends AppCompatActivity {
@@ -31,7 +33,7 @@ public class PathScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Path Finding            Animation:");
+        setTitle("Path Finding                         Options:");
         allRooms = (ArrayList<Room>)getIntent().getSerializableExtra("rooms");
         authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
         setContentView(R.layout.path_screen);
@@ -44,6 +46,13 @@ public class PathScreen extends AppCompatActivity {
         for (int i = 0; i<allRooms.size();i++){
             roomShortNames.add(allRooms.get(i).getShortName());
         }
+
+        // Sort roomShortNames
+        Collections.sort(roomShortNames);
+        for (String string : roomShortNames){
+            System.out.println(string);
+        }
+
         PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
         PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
         PickerUISettings pickerUISettings = new PickerUISettings.Builder()
@@ -116,6 +125,7 @@ public class PathScreen extends AppCompatActivity {
 
         pathFind.initialize();
 
+
         //TODO change from logd to user GUI popup?
         //Pathfind returns true if a path was found and false if there is no path
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
@@ -151,6 +161,17 @@ public class PathScreen extends AppCompatActivity {
         }
     }
 
+    public void animationSwitch(View view){
+        SwitchCompat animationSwitch = findViewById(R.id.animationSwitch);
+        if(animationSwitch.isChecked()){
+            showAnimation=true;
+            pathFind.toggleAnimVisibility(true);
+        }else{
+            showAnimation=false;
+            pathFind.toggleAnimVisibility(false);
+        }
+    }
+
     // ---------------------- This stuff is used for the top-right dropdown menu
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -169,23 +190,11 @@ public class PathScreen extends AppCompatActivity {
                 intent.putExtra("user",authenticatedUser);
                 intent.putExtra("rooms",allRooms);
                 startActivity(intent);
+                return true;
             case R.id.menuLogOut:
                 Intent intent2 = new Intent(this, LoginScreen.class);
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent2);
-                return true;
-
-                // TODO this probably doesn't work, fix later
-            case R.id.animation_switch:
-                SwitchCompat animationSwitch = findViewById(R.id.animation_switch);
-                animationSwitch.setOnClickListener(listener ->{
-                    if(animationSwitch.isActivated()){
-                        showAnimation=true;
-                        System.out.println("true");
-                    }else{
-                        showAnimation=false;
-                    }
-                });
                 return true;
             default:
                 return false;

@@ -21,13 +21,17 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerAdapterViewHolder>{
     private ReservationHolder[] allUserReservations;
     private Intent intent;
     private Activity screen;
-    public RecyclerViewAdapter(Intent intent, Activity screen){
+    private AbstractUser authenticatedUser;
+    private ArrayList<Room> allRooms;
+
+    public RecyclerViewAdapter(Intent intent, Activity screen, AbstractUser authenticatedUser, ArrayList<Room> allRooms){
         this.intent=intent;
         this.screen=screen;
     }
@@ -46,7 +50,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             this.reservationViewCancelButton = itemView.findViewById(R.id.reservationViewCancelButton);
         }
 
-        private void bind(ReservationHolder reservationHolder,Activity screen){
+        private void bind(ReservationHolder reservationHolder,Activity screen, AbstractUser authenticatedUser, ArrayList<Room> allRooms){
             int reservationID = reservationHolder.getReservationID();
             String roomID = reservationHolder.getRoomID();
             String startTime = reservationHolder.getStartTime();
@@ -61,7 +65,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 AlertDialog.Builder builder = new AlertDialog.Builder(screen);
                 builder.setMessage("Do you want to cancel this reservation?");
                 builder.setTitle("Cancel Reservation");
-                // Add the buttons
+
+                // Choose yes on the confirmation
                 builder.setPositiveButton("Yes, Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked 'Yes, Cancel' button
@@ -79,7 +84,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                                 (Request.Method.POST, authenticationEndpoint, requestBody,
                                         response -> {
                                             try{
-                                                //TODO Change name of JSON pair to whatever danny makes it
                                                 boolean reservationDeleteSuccess = response.getBoolean("reservationDeleted");
                                                 reservationDeleted.set(reservationDeleteSuccess);
                                                 System.out.println("Recieved Content: "+reservationDeleted.get());
@@ -87,7 +91,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                                                 reservationDeleted.set(false);
                                             }
                                             if(reservationDeleted.get()){
-                                                Toast.makeText(screen, "Reservation Successfully Deleted", Toast.LENGTH_LONG).show();
+                                                Intent intent = new Intent(screen, ViewReservationsScreen.class);
+                                                intent.putExtra("user",authenticatedUser);
+                                                intent.putExtra("rooms",allRooms);
+                                                screen.startActivity(intent);
                                             }
                                             else if(!reservationDeleted.get()) {
                                                 Toast.makeText(screen, "Reservation Unsuccessfully Deleted", Toast.LENGTH_LONG).show();
@@ -134,7 +141,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             }
         }
     }
-
     // Required methods for RecyclerView
 
     @NonNull
@@ -148,7 +154,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapterViewHolder holder, int position) {
-        holder.bind(allUserReservations[position],this.screen);
+        holder.bind(allUserReservations[position],this.screen,this.authenticatedUser,this.allRooms);
     }
 
     @Override

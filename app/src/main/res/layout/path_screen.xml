@@ -45,9 +45,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginLeft="40dp"
+                android:layout_marginLeft="0dp"
                 android:layout_marginTop="0dp"
-                android:layout_marginRight="40dp"
+                android:layout_marginRight="0dp"
                 android:layout_weight=".15"
                 android:background="@color/ui_black"
                 android:gravity="center"
@@ -101,6 +101,16 @@
                         android:textColor="#FFFFFF" />
 
                 </RadioGroup>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/animationSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:background="@color/ui_black"
+                    android:onClick="animationSwitch"
+                    android:text="Animations"
+                    android:textColor="#FFFFFF" />
             </LinearLayout>
 
             <FrameLayout
@@ -123,6 +133,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="visible" />
+
+
             </FrameLayout>
 
             <LinearLayout
@@ -206,13 +218,13 @@
             android:id="@+id/startingRoomPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <com.dpizarro.uipicker.library.picker.PickerUI
             android:id="@+id/endingRoomPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
