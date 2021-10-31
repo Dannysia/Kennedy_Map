@@ -114,7 +114,7 @@ public class PathFind {
 
         for (int i = 0; i < path.size(); i++){
             //Used to artistically change the path by specifying every nth number of path nodes to render (to use change mod value)
-            if (i % 3 != 0 || i == 0 || i == path.size() - 1){
+            if (i % 3 == 0 || i == 0 || i == path.size() - 1){
                 drawable.drawCMD(path.get(i));
                 drawable.waitCMD(1);
             }

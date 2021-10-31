@@ -31,9 +31,9 @@ import java.util.Calendar;
 @SuppressWarnings("unchecked")
 public class ReservationScreen extends AppCompatActivity {
 
-    AbstractUser authenticatedUser;
-    ArrayList<Room> allRooms;
-    ArrayList<Reservation> selectedRoomReservations = new ArrayList<>();
+    private AbstractUser authenticatedUser;
+    private ArrayList<Room> allRooms;
+    private ArrayList<Reservation> selectedRoomReservations = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

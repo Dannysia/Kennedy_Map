@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -219,8 +220,8 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
                         canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), closedNodePaint);
                         break;
                     case PATH:
-                        //canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), pathNodePaint);
-                        canvas.drawRect(node.getX() - (node.getRadius() / 1.5f), node.getY() - (node.getRadius() / 1.5f), node.getX() + (node.getRadius() / 1.5f), node.getY() + (node.getRadius() / 1.5f), pathNodePaint);
+                        canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), pathNodePaint);
+                        //canvas.drawRect(node.getX() - (node.getRadius() / 1.5f), node.getY() - (node.getRadius() / 1.5f), node.getX() + (node.getRadius() / 1.5f), node.getY() + (node.getRadius() / 1.5f), pathNodePaint);
                         break;
                     case BARRIER:
                         //canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), barrierNodePaint);
@@ -290,7 +291,9 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         }
     }
 
-    private  void initPaints(){
+    // Change these to change what is drawn
+    private void initPaints(){
+        // Debug paints
         openNodePaint = new Paint();
         openNodePaint.setStyle(Paint.Style.STROKE);
         openNodePaint.setStrokeWidth(5);
@@ -305,13 +308,6 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         closedNodePaint.setAlpha(127);
         closedNodePaint.setColor(Color.rgb(255,0,0));
 
-        pathNodePaint = new Paint();
-        pathNodePaint.setStyle(Paint.Style.STROKE);
-        pathNodePaint.setStrokeWidth(2);
-        pathNodePaint.setAntiAlias(true);
-        //pathNodePaint.setAlpha(127);
-        pathNodePaint.setColor(Color.rgb(242,108,40));
-
         barrierNodePaint = new Paint();
         barrierNodePaint.setStyle(Paint.Style.STROKE);
         barrierNodePaint.setStrokeWidth(2);
@@ -319,18 +315,28 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         barrierNodePaint.setAlpha(127);
         barrierNodePaint.setColor(Color.rgb(242,90,48));
 
+        // Real stuff
+        pathNodePaint = new Paint();
+        pathNodePaint.setStyle(Paint.Style.STROKE);
+        pathNodePaint.setStrokeWidth(10);
+        pathNodePaint.setAntiAlias(true);
+        //pathNodePaint.setAlpha(127);
+        pathNodePaint.setColor(Color.rgb(242,108,40));
+
         startNodePaint = new Paint();
-        startNodePaint.setStyle(Paint.Style.STROKE);
+        startNodePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         startNodePaint.setStrokeWidth(15);
         startNodePaint.setAntiAlias(true);
-        startNodePaint.setAlpha(127);
+        //startNodePaint.setAlpha(127);
         startNodePaint.setColor(Color.rgb(64,224,208));
+        startNodePaint.setShadowLayer(5f,2f,2f,Color.rgb(0,0,0));
 
         endNodePaint = new Paint();
-        endNodePaint.setStyle(Paint.Style.STROKE);
+        endNodePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         endNodePaint.setStrokeWidth(15);
         endNodePaint.setAntiAlias(true);
-        endNodePaint.setAlpha(127);
+        //endNodePaint.setAlpha(127);
         endNodePaint.setColor(Color.rgb(64,224,208));
+        endNodePaint.setShadowLayer(5f,2f,2f,Color.rgb(0,0,0));
     }
 }

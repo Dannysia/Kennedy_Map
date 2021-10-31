@@ -26,7 +26,7 @@ public class LoginScreen extends AppCompatActivity {
 
 	// TODO add button debouncing
 
-	ArrayList<Room> allRooms = new ArrayList<>();
+	private ArrayList<Room> allRooms = new ArrayList<>();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

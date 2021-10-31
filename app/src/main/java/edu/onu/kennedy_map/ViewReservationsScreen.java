@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings("unchecked")
 public class ViewReservationsScreen extends AppCompatActivity {
 
-    AbstractUser authenticatedUser;
-    ArrayList<Room> allRooms;
+    private AbstractUser authenticatedUser;
+    private ArrayList<Room> allRooms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +33,7 @@ public class ViewReservationsScreen extends AppCompatActivity {
         allRooms = (ArrayList<Room>)getIntent().getSerializableExtra("rooms");
         setTitle("Your Reservations:          ");
         RecyclerView recyclerView = findViewById(R.id.viewUserReservationsRecyclerView);
-        RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getIntent(),this);
+        RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getIntent(),this,authenticatedUser,allRooms);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
