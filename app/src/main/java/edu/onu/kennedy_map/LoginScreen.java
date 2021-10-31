@@ -3,6 +3,7 @@ package edu.onu.kennedy_map;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -37,16 +38,16 @@ public class LoginScreen extends AppCompatActivity {
 		actionBar.hide();
 
 		// Set view correctly if not done in xml already:
-		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
-		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
-		LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signupLayout);
-		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
+		LinearLayout signinSignupLayout = findViewById(R.id.signinSignupLayout);
+		LinearLayout signinLayout = findViewById(R.id.signinLayout);
+		LinearLayout signupLayout = findViewById(R.id.signupLayout);
+		LinearLayout forgotPasswordLayout = findViewById(R.id.forgotPasswordLayout);
 		signinSignupLayout.setVisibility(View.VISIBLE);
 		signinLayout.setVisibility(View.GONE);
 		signupLayout.setVisibility(View.GONE);
 		forgotPasswordLayout.setVisibility(View.GONE);
 
-		//TODO move to databaseManager
+		// I am leaving this here
 		String roomIDEndpoint ="http://eccs3421.siatkosky.net:3421"+"/roomsWithInformation"; // 1. Endpoint
 		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
 				(Request.Method.GET, roomIDEndpoint, null,
@@ -150,12 +151,16 @@ public class LoginScreen extends AppCompatActivity {
 		EditText passwordLoginEditText	= (EditText)findViewById(R.id.passwordLoginEditText);
 
 		// Make sure neither are blank
-		if(emailLoginEditText.getText().toString().equals("")||passwordLoginEditText.getText().toString().equals("")){
+		if(InputValidation.checkIfTextViewsBlank(emailLoginEditText, passwordLoginEditText)) {
 			Toast.makeText(LoginScreen.this, "Email and Password are required.", Toast.LENGTH_LONG).show();
 			return;
+		}else{
+			if(!InputValidation.checkIfValidEmail(emailLoginEditText.getText().toString())) {
+				Toast.makeText(LoginScreen.this, "Enter a valid email address.", Toast.LENGTH_LONG).show();
+				return;
+			}
 		}
 
-		// TODO: More input sanitation here before we send it to our webserver
 		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText,allRooms);
 	}
 
@@ -180,11 +185,17 @@ public class LoginScreen extends AppCompatActivity {
 	public void resetPasswordButton(View view){
 		//Make sure email is not blank
 		EditText emailPasswordResetEditText = (EditText) findViewById(R.id.emailPasswordResetEditText);
-		if(emailPasswordResetEditText.getText().toString().equals("")){
+		if(InputValidation.checkIfTextViewsBlank(emailPasswordResetEditText)){
 			Toast.makeText(LoginScreen.this, "Email is required.", Toast.LENGTH_LONG).show();
+			return;
 		}
-		//TODO: More input sanitation here before we send it to our database (or webserver)
-		//TODO: Reset the user's password somehow.
+		if(!InputValidation.checkIfValidEmail(emailPasswordResetEditText.getText().toString())){
+			Toast.makeText(LoginScreen.this, "Enter a valid email address", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		DatabaseManager.getInstance().loginPageResetPassword(this,emailPasswordResetEditText);
+
 	}
 	public void returnToSigninButton(View view){
 		//TODO add animation to pressing the sign in button
@@ -207,17 +218,21 @@ public class LoginScreen extends AppCompatActivity {
 		EditText confirmPasswordSignupEditText  = (EditText)findViewById(R.id.confirmPasswordSignupEditText);
 
 		// Make sure none are blank
-		if(emailSignupEditText.getText().toString().equals("")||passwordSignupEditText.getText().toString().equals("")
-				||confirmPasswordSignupEditText.getText().toString().equals("")||firstNameSignUpEditText.getText().toString().equals("")
-				||lastNameSignUpEditText.getText().toString().equals("")){
+		if(InputValidation.checkIfTextViewsBlank(firstNameSignUpEditText,lastNameSignUpEditText,emailSignupEditText,
+				passwordSignupEditText,confirmPasswordSignupEditText)){
 			Toast.makeText(LoginScreen.this, "All fields are required.", Toast.LENGTH_LONG).show();
+			return;
 		}
 		// Make sure passwords match
 		if(!passwordSignupEditText.getText().toString().equals(confirmPasswordSignupEditText.getText().toString())){
 			Toast.makeText(LoginScreen.this, "Passwords don't match. Retype them.", Toast.LENGTH_LONG).show();
+			return;
 		}
-
-		// TODO: More input sanitation here before we send it to our database (or webserver)
+		// Make sure email is valid
+		if(!InputValidation.checkIfValidEmail(emailSignupEditText.getText().toString())){
+			Toast.makeText(LoginScreen.this, "Enter a valid email address.", Toast.LENGTH_LONG).show();
+			return;
+		}
 
 		DatabaseManager.getInstance().loginPageRegister(this,emailSignupEditText,passwordSignupEditText,firstNameSignUpEditText,lastNameSignUpEditText);
 	}

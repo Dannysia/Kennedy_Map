@@ -13,33 +13,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
+
 import com.dpizarro.uipicker.library.picker.PickerUI;
 import com.dpizarro.uipicker.library.picker.PickerUISettings;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @SuppressWarnings("unchecked")
 public class ReservationScreen extends AppCompatActivity {
 
     AbstractUser authenticatedUser;
     ArrayList<Room> allRooms;
+    ArrayList<Reservation> selectedRoomReservations = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,54 +139,61 @@ public class ReservationScreen extends AppCompatActivity {
 
         @SuppressLint("SetTextI18n")
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            clickedButton.setText(""+month+"/"+day+"/"+year);
-            storageDay.setText(""+day);
-            storageMonth.setText(""+ (month+1));
+            clickedButton.setText(""+(month+1)+"/"+day+"/"+year);
+            if(day<10){
+                storageDay.setText("0"+day);
+            }else{
+                storageDay.setText(""+day);
+            }
+            if((month+1)<10){
+                storageMonth.setText("0"+ (month+1));
+            }else{
+                storageMonth.setText(""+ (month+1));
+            }
             storageYear.setText(""+year);
         }
     }
     public void startTimeButton(View view){
-        Button startTimeButton = (Button)findViewById(R.id.startTimeButton);
-        TextView startHour = (TextView)findViewById(R.id.startHour);
-        TextView startMinute = (TextView)findViewById(R.id.startMinute);
+        Button startTimeButton =findViewById(R.id.startTimeButton);
+        TextView startHour = findViewById(R.id.startHour);
+        TextView startMinute = findViewById(R.id.startMinute);
         TimePickerFragment newFragment = new TimePickerFragment(startTimeButton,startHour,startMinute);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
     public void startDateButton(View view){
-        Button startDateButton = (Button)findViewById(R.id.startDateButton);
-        TextView startDay = (TextView)findViewById(R.id.startDay);
-        TextView startMonth = (TextView)findViewById(R.id.startMonth);
-        TextView startYear = (TextView)findViewById(R.id.startYear);
+        Button startDateButton = findViewById(R.id.startDateButton);
+        TextView startDay = findViewById(R.id.startDay);
+        TextView startMonth = findViewById(R.id.startMonth);
+        TextView startYear = findViewById(R.id.startYear);
         DatePickerFragment newFragment = new DatePickerFragment(startDateButton,startDay,startMonth,startYear);
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
     public void endTimeButton(View view){
-        Button endTimeButton = (Button)findViewById(R.id.endTimeButton);
-        TextView endHour = (TextView)findViewById(R.id.endHour);
-        TextView endMinute = (TextView)findViewById(R.id.endMinute);
+        Button endTimeButton = findViewById(R.id.endTimeButton);
+        TextView endHour = findViewById(R.id.endHour);
+        TextView endMinute = findViewById(R.id.endMinute);
         TimePickerFragment newFragment = new TimePickerFragment(endTimeButton,endHour,endMinute);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
     public void endDateButton(View view){
-        Button endDateButton = (Button)findViewById(R.id.endDateButton);
-        TextView endDay = (TextView)findViewById(R.id.endDay);
-        TextView endMonth = (TextView)findViewById(R.id.endMonth);
-        TextView endYear = (TextView)findViewById(R.id.endYear);
+        Button endDateButton = findViewById(R.id.endDateButton);
+        TextView endDay = findViewById(R.id.endDay);
+        TextView endMonth = findViewById(R.id.endMonth);
+        TextView endYear = findViewById(R.id.endYear);
         DatePickerFragment newFragment = new DatePickerFragment(endDateButton,endDay,endMonth,endYear);
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
     public void selectRoomButton(View view){
-        Button selectRoomButton = (Button) findViewById(R.id.selectRoomButton);
-        PickerUI roomPicker = (PickerUI) findViewById(R.id.picker_ui_view);
-        roomPicker.setOnClickItemPickerUIListener(new PickerUI.PickerUIItemClickListener() {
-            @Override
-            public void onItemClickPickerUI(int which, int position, String valueResult) {
-                // Query the database for the reservations for the selected room
-                if(valueResult != null && !valueResult.equals("")){
-                    System.out.println(valueResult);
-                    DatabaseManager.getInstance().reservationPageSelectedRoom(ReservationScreen.this,valueResult,selectRoomButton,allRooms);
-                }
+        Button selectRoomButton = findViewById(R.id.selectRoomButton);
+        PickerUI roomPicker = findViewById(R.id.picker_ui_view);
+        roomPicker.setOnClickItemPickerUIListener((which, position, valueResult) -> {
+
+            // Query the database for the reservations for the selected room
+            if(valueResult != null && !valueResult.equals("")){
+                System.out.println(valueResult);
+                DatabaseManager.getInstance().reservationPageSelectedRoom(ReservationScreen.this,valueResult,selectRoomButton,
+                        allRooms,selectedRoomReservations);
             }
         });
         roomPicker.slide(0);
@@ -222,7 +223,9 @@ public class ReservationScreen extends AppCompatActivity {
         startActivity(intent1);
     }
     public void reserveConfirmButton(View view){
-       DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser,allRooms);
+
+        DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser,
+                allRooms,selectedRoomReservations);
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu
