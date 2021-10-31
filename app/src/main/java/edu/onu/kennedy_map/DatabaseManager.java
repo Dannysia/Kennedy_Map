@@ -11,19 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.dpizarro.uipicker.library.picker.PickerUI;
-import com.dpizarro.uipicker.library.picker.PickerUISettings;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -228,7 +223,8 @@ public class DatabaseManager {
      * @param pressedButton The button that is pressed to activate the dropdown menu.
      * @param allRooms The arraylist of all the rooms
      */
-    public void reservationPageSelectedRoom(Activity currentScreen, String valueResult, Button pressedButton, ArrayList<Room> allRooms){
+    public void reservationPageSelectedRoom(Activity currentScreen, String valueResult, Button pressedButton,
+                                            ArrayList<Room> allRooms, ArrayList<Reservation> selectedRoomReservations){
 
         // Need to convert the valueResult from shortName back into roomID
         String roomIDToQuery="";
@@ -264,7 +260,9 @@ public class DatabaseManager {
 
                                     JSONObject currentRoomReservationJSONData = currentRoomReservationsJSONArray.getJSONObject(i);
                                     finishedRoomStrings.add(currentRoomReservationJSONData.get("startTime")+" - "+currentRoomReservationJSONData.get("endTime")+"\n");
+                                    selectedRoomReservations.add(new Reservation((String)currentRoomReservationJSONData.get("startTime"),(String)currentRoomReservationJSONData.get("endTime")));
                                 }
+                                Toast.makeText(currentScreen, ""+selectedRoomReservations.size(), Toast.LENGTH_LONG).show();
                                 if(currentRoomReservationsJSONArray.length()==0){
                                     TextView currentReservationsTextView = (TextView) currentScreen.findViewById(R.id.currentReservationsTextView);
                                     currentReservationsTextView.setText("No Current Reservations");
@@ -327,7 +325,8 @@ public class DatabaseManager {
      * @param currentScreen The current screen the user is on. The ReservationScreen will be passed.
      * @param currentUser The currently logged in user, passed from screen to screen using putExtra.
      */
-    public void reservationPageReserveRoom(Activity currentScreen, RegisteredUser currentUser, ArrayList<Room> allRooms){
+    public void reservationPageReserveRoom(Activity currentScreen, RegisteredUser currentUser,
+                                           ArrayList<Room> allRooms, ArrayList<Reservation> currentReservations){
         String makeAReservationEndpoint = ENDPOINT+"/reservations/create"; // 1. Endpoint
         JSONObject requestBody=null;
         try {
@@ -398,9 +397,15 @@ public class DatabaseManager {
             String dateTimeFormatEnd = outputFormatterEnd.format(convertToRealTimeEnd);
             requestBody.put("end_time", dateTimeFormatEnd);
 
-            //TODO Make sure reservation isn't for the past
+            // Make sure reservation isn't for the past
             if(InputValidation.checkIfStartTimeIsGreaterThanOrEqualToEndTime(dateTimeFormatStart,dateTimeFormatEnd)){
                 Toast.makeText(currentScreen, "Please make start date before end date.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // Make sure reservation doesn't conflict with any of the others for that room
+            if(InputValidation.checkIfReservationConflicts(new Reservation(dateTimeFormatStart,dateTimeFormatEnd),currentReservations)){
+                Toast.makeText(currentScreen, "Reservation conflict with another. Choose a different time.", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -411,7 +416,6 @@ public class DatabaseManager {
                 (Request.Method.POST, makeAReservationEndpoint, requestBody,
                         response -> {
                             try{
-                                //TODO Change name of JSON pair to whatever danny makes it
                                 boolean successToReserve = response.getBoolean("reservationSuccessful");
                                 successBoolean.set(successToReserve);
                                 System.out.println("Received Content: "+successBoolean.get());
@@ -430,6 +434,37 @@ public class DatabaseManager {
                             // Button Debounce off
                             Button reserveConfirmButton = currentScreen.findViewById(R.id.reserveConfirmButton);
                             reserveConfirmButton.setEnabled(true);
+
+                            // Clear time and date reservation buttons
+                            Button startTimeButton = currentScreen.findViewById(R.id.startTimeButton);
+                            TextView startHour = currentScreen.findViewById(R.id.startHour);
+                            TextView startMinute = currentScreen.findViewById(R.id.startMinute);
+                            startTimeButton.setText("SET START TIME");
+                            startHour.setText("");
+                            startMinute.setText("");
+                            Button endTimeButton = currentScreen.findViewById(R.id.endTimeButton);
+                            TextView endHour = currentScreen.findViewById(R.id.endHour);
+                            TextView endMinute = currentScreen.findViewById(R.id.endMinute);
+                            endTimeButton.setText("SET END TIME");
+                            endHour.setText("");
+                            endMinute.setText("");
+                            Button startDateButton = currentScreen.findViewById(R.id.startDateButton);
+                            TextView startDay = currentScreen.findViewById(R.id.startDay);
+                            TextView startMonth = currentScreen.findViewById(R.id.startMonth);
+                            TextView startYear = currentScreen.findViewById(R.id.startYear);
+                            startDateButton.setText("SET START DATE");
+                            startDay.setText("");
+                            startMonth.setText("");
+                            startYear.setText("");
+                            Button endDateButton = currentScreen.findViewById(R.id.endDateButton);
+                            TextView endDay = currentScreen.findViewById(R.id.endDay);
+                            TextView endMonth = currentScreen.findViewById(R.id.endMonth);
+                            TextView endYear = currentScreen.findViewById(R.id.endYear);
+                            endDateButton.setText("SET END DATE");
+                            endDay.setText("");
+                            endMonth.setText("");
+                            endYear.setText("");
+
                         }, error -> { System.out.println("Line 347 Error "+error.toString());
                 });
         //Pop-up loading screen
@@ -461,7 +496,6 @@ public class DatabaseManager {
                 (Request.Method.GET, authenticationEndpoint, null,
                         response -> {
                             try{
-                                //TODO Change name of JSON pair to whatever danny makes it
                                 JSONArray userReservations = response.getJSONArray("currentUserReservations");
                                 for (int i = 0; i<userReservations.length(); i++){
                                     JSONObject reservation = userReservations.getJSONObject(i);
