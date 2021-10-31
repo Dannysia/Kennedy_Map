@@ -17,9 +17,15 @@ public class PathFind {
     private ArrayList<ArrayList<ArrayList<PathNode>>> nodes = new ArrayList<>();
     private PriorityQueue<PathNode> openSet = new PriorityQueue<>(new NodePriorityComparator());
 
+    private boolean animShouldShow = false;
+
     public PathFind(Context context, DrawableSurfaceView drawable){
         this.context = context;
         this.drawable = drawable;
+    }
+
+    public void toggleAnimVisibility(boolean animShouldShow){
+        this.animShouldShow = animShouldShow;
     }
 
     //Priority Queue Comparator to get the least fScore
@@ -136,12 +142,16 @@ public class PathFind {
         //The set of discovered nodes that may be part of the path and may have neighbors that are part of the path
         openSet.add(startNode);
 
-        drawable.drawCMD(startNode);
-        drawable.drawCMD(endNode);
-
-        while (!openSet.isEmpty()){
+        if(animShouldShow) {
             drawable.drawCMD(startNode);
             drawable.drawCMD(endNode);
+        }
+
+        while (!openSet.isEmpty()){
+            if(animShouldShow) {
+                drawable.drawCMD(startNode);
+                drawable.drawCMD(endNode);
+            }
 
             currentNode = openSet.poll();
 
@@ -161,7 +171,9 @@ public class PathFind {
                     neighbor.setNodeType(NodeType.OPEN);
                     openSet.add(neighbor);
                 }
-                drawable.drawCMD(currentNode);
+                if(animShouldShow) {
+                    drawable.drawCMD(currentNode);
+                }
             }
             //drawable.waitCMD(0);
 
@@ -172,7 +184,9 @@ public class PathFind {
 
             //Done to speedup playback (likely can be improved)
             if (openSet.size() % 150 == 0){
-                drawable.waitCMD(1);
+                if(animShouldShow) {
+                    drawable.waitCMD(1);
+                }
             }
         }
         return false;
