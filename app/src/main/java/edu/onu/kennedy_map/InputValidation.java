@@ -68,17 +68,32 @@ public class InputValidation {
             LocalDateTime alreadyReservedReservationEndDateTime = LocalDateTime.from(endDateTimeFormatter.parse
                     (reservation.getEndDateTime()));
 
-            // Attempted Reservation:  |~~~|   |~~~|  OR  |       |       OR     |        |
-            //  Current Reservations:  |           |      |           |       |           |
-            if((attemptedReservationStartDateTime.isAfter(alreadyReservedReservationStartDateTime)||
+            // Attempted Reservation:                 |       |       OR     |        |
+            //  Current Reservations:  |           |                                     |           |
+            if(attemptedReservationStartDateTime.isBefore(alreadyReservedReservationStartDateTime)
+                &&attemptedReservationEndDateTime.isBefore(alreadyReservedReservationEndDateTime)&&
+                alreadyReservedReservationStartDateTime.isAfter(attemptedReservationStartDateTime)&&
+                alreadyReservedReservationEndDateTime.isAfter(attemptedReservationEndDateTime)||
+                    attemptedReservationStartDateTime.isAfter(alreadyReservedReservationStartDateTime)
+                    &&attemptedReservationEndDateTime.isAfter(alreadyReservedReservationEndDateTime)&&
+                    alreadyReservedReservationStartDateTime.isBefore(attemptedReservationStartDateTime)&&
+                    alreadyReservedReservationEndDateTime.isBefore(attemptedReservationEndDateTime)) {
+
+                return false;
+
+                // Attempted Reservation:  |~~~|   |~~~|  OR  |       |       OR     |        |
+                //  Current Reservations:  |           |      |           |       |           |
+            }else if((attemptedReservationStartDateTime.isAfter(alreadyReservedReservationStartDateTime)||
                     attemptedReservationStartDateTime.isEqual(alreadyReservedReservationStartDateTime))&&
                     (attemptedReservationEndDateTime.isBefore(alreadyReservedReservationEndDateTime)||
                     attemptedReservationEndDateTime.isEqual(alreadyReservedReservationEndDateTime))&&
                     (alreadyReservedReservationStartDateTime.isBefore(attemptedReservationStartDateTime)||
                     alreadyReservedReservationStartDateTime.isEqual(attemptedReservationStartDateTime))&&
                     (alreadyReservedReservationEndDateTime.isAfter(attemptedReservationEndDateTime))||
-                    alreadyReservedReservationEndDateTime.isEqual(alreadyReservedReservationEndDateTime)){
+                    alreadyReservedReservationEndDateTime.isEqual(alreadyReservedReservationEndDateTime)) {
                 return true;
+
+
 
             // Attempted Reservation:  |           |  OR  |           |  OR  |           |
             //  Current Reservations:  |~~~|   |~~~|  OR  |       |      OR     |        |

@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 
@@ -37,6 +38,92 @@ public class DatabaseManager {
             databaseManager = new DatabaseManager();
         }
         return databaseManager;
+    }
+
+    public void getRooms(Activity loginScreen,ArrayList<Room> allRooms){
+        String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, roomIDEndpoint, null,
+                        response -> {
+                            try{
+                                JSONArray roomObjects = response.getJSONArray("roomObjects");
+                                System.out.println("HERE");
+                                JSONObject eachRoom;
+                                for (int i = 0; i<roomObjects.length(); i++){
+                                    eachRoom = roomObjects.getJSONObject(i);
+                                    Room returnedRoom = new Room();
+                                    // List of items to set in the room object
+                                    // 1. roomID
+                                    try {
+                                        returnedRoom.setRoomID(eachRoom.getInt("roomID"));
+                                    }catch(JSONException e){
+                                        System.out.println("RoomID error"+eachRoom);
+                                    }
+                                    // 2. shortName
+                                    try {
+                                        returnedRoom.setShortName(eachRoom.getString("shortName"));
+                                    }catch(JSONException e){
+                                        e.printStackTrace();
+                                        System.out.println("Shortname error"+eachRoom);
+                                    }
+                                    // 3. roomName
+                                    returnedRoom.setRoomName(eachRoom.getString("roomName"));
+                                    // 4. description
+                                    returnedRoom.setDescription(eachRoom.getString("description"));
+                                    // 5. floor
+                                    returnedRoom.setFloor(eachRoom.getInt("floor"));
+                                    // 6. boundaryCoordinates Arraylist
+                                    JSONArray roomBoundaryCoordinates = eachRoom.getJSONArray("boundaryCoordinates");
+                                    ArrayList<XYZCoordinate> roomBoundaryCoordinatesArrayList = new ArrayList<>();
+                                    JSONObject eachXYZCoordinate;
+                                    for (int j = 0; j<roomBoundaryCoordinates.length(); j++){
+                                        try {
+                                            eachXYZCoordinate = roomBoundaryCoordinates.getJSONObject(j);
+                                            roomBoundaryCoordinatesArrayList.add(new XYZCoordinate(eachXYZCoordinate.getInt("LocationX"),
+                                                    eachXYZCoordinate.getInt("LocationY"), eachXYZCoordinate.getInt("LocationZ")));
+                                        }catch (JSONException jsonException){
+                                            jsonException.printStackTrace();
+                                            System.out.println("boundaryCoordinatesError "+eachRoom);
+                                        }
+                                    }
+                                    returnedRoom.setBoundaryCoordinates(roomBoundaryCoordinatesArrayList);
+                                    returnedRoom.setCenter(returnedRoom.getBoundaryCoordinates());
+                                    // 7. reservable
+                                    try {
+                                        if("True".equals(eachRoom.getString("reservable"))){
+                                            returnedRoom.setReservable(true);
+                                        }else{
+                                            returnedRoom.setReservable(false);
+                                        }
+                                        //returnedRoom.setReservable(response.getBoolean("reservable"));
+                                    }catch(JSONException e){
+                                        e.printStackTrace();
+                                        System.out.println("reservable boolean error "+eachRoom);
+                                    }
+                                    // Remove loading screen
+                                    LinearLayout loadingLinearLayout = (LinearLayout)loginScreen.findViewById(R.id.loginLoadingLinearLayout);
+                                    loadingLinearLayout.setVisibility(View.GONE);
+                                    allRooms.add(returnedRoom);
+                                }
+                                System.out.println(allRooms.size());
+                            }catch(Exception e){
+                                e.printStackTrace();
+                            }
+                        }, error ->
+                { System.out.println("Error "+error.toString());
+                    error.printStackTrace();
+                    getRooms(loginScreen,allRooms);
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(5000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        //Pop-up loading screen
+        LinearLayout loginLoadingLinearLayout = (LinearLayout)loginScreen.findViewById(R.id.loginLoadingLinearLayout);
+        loginLoadingLinearLayout.setVisibility(View.VISIBLE);
+        loginLoadingLinearLayout.setClickable(true);
+        loginLoadingLinearLayout.setOnClickListener(listener ->{
+            // Purposefully blank
+        });
+        // Add the request to the queue, which will complete eventually
+        APIRequestQueue.getInstance(loginScreen).addToRequestQueue(jsonObjectRequest);
     }
 
     /**
@@ -418,7 +505,7 @@ public class DatabaseManager {
                             try{
                                 boolean successToReserve = response.getBoolean("reservationSuccessful");
                                 successBoolean.set(successToReserve);
-                                System.out.println("Received Content: "+successBoolean.get());
+                                System.out.println("Received Content: "+response.get("reservationSuccessful"));
                             }catch(Exception e){
                                 successBoolean.set(false);
                             }
