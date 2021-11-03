@@ -220,8 +220,8 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
                         canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), closedNodePaint);
                         break;
                     case PATH:
-                        canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), pathNodePaint);
-                        //canvas.drawRect(node.getX() - (node.getRadius() / 1.5f), node.getY() - (node.getRadius() / 1.5f), node.getX() + (node.getRadius() / 1.5f), node.getY() + (node.getRadius() / 1.5f), pathNodePaint);
+                        //canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), pathNodePaint);
+                        canvas.drawRect(node.getX() - (node.getRadius() / 1.5f), node.getY() - (node.getRadius() / 1.5f), node.getX() + (node.getRadius() / 1.5f), node.getY() + (node.getRadius() / 1.5f), pathNodePaint);
                         break;
                     case BARRIER:
                         //canvas.drawCircle(node.getX(), node.getY(), node.getRadius(), barrierNodePaint);

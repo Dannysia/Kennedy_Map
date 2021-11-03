@@ -120,6 +120,10 @@ public class PathFind {
             }
         }
 
+        //drawable.clearCMD(1000);
+        drawable.drawCMD(end);
+        drawable.drawCMD(start);
+        drawable.waitCMD(1);
         /*for (PathNode pathNode : path){
             drawable.drawCMD(pathNode);
             drawable.waitCMD(1);
