@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,7 +43,8 @@ public class ReservationScreen extends AppCompatActivity {
         //Toast.makeText(ReservationScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
         setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
-
+        TextView reservationsListTextView = findViewById(R.id.reservationsListTextView);
+        reservationsListTextView.setMovementMethod(new ScrollingMovementMethod());
         //TODO we can worry about moving all this stuff to the rooms class later
 
         //Populate dropdown
