@@ -220,6 +220,7 @@ public class ReservationScreen extends AppCompatActivity {
     public void backToMenuButton(View view){
         Intent intent1 = new Intent(this, MenuScreen.class);
         intent1.putExtra("user",authenticatedUser);
+        intent1.putExtra("rooms",allRooms);
         startActivity(intent1);
     }
     public void reserveConfirmButton(View view){

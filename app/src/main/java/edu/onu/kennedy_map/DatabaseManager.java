@@ -40,6 +40,11 @@ public class DatabaseManager {
         return databaseManager;
     }
 
+    /**
+     * Gets all rooms to store them in the arraylist at the beginning
+     * @param loginScreen The loginscreen activity class
+     * @param allRooms The array to fill
+     */
     public void getRooms(Activity loginScreen,ArrayList<Room> allRooms){
         String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -170,7 +175,10 @@ public class DatabaseManager {
                             else if(returnedUserID.get()==0) {
                                 Toast.makeText(currentScreen, "Account information incorrect or no account.", Toast.LENGTH_LONG).show();
                             }
-                        }, error -> { System.out.println("Error "+error.toString());
+                        }, error -> {
+                    System.out.println("Error "+error.toString());
+                    // Recursive fix
+                    loginPageLogin( currentScreen,  emailInput,  passwordInput,  allRooms);
                 });
         //Pop-up loading screen
         LinearLayout loginLoadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.loginLoadingLinearLayout);
@@ -221,6 +229,8 @@ public class DatabaseManager {
                                 Toast.makeText(currentScreen, "Email Sent if account exists. Check your inbox/spam folder! ", Toast.LENGTH_LONG).show();
                             }
                         }, error -> { System.out.println("Error "+error.toString());
+                    // Recursive fix
+                    loginPageResetPassword( currentScreen,  emailPasswordResetEditText);
                 });
         //Pop-up loading screen
         LinearLayout loginLoadingLinearLayout = currentScreen.findViewById(R.id.loginLoadingLinearLayout);
@@ -285,8 +295,11 @@ public class DatabaseManager {
                                 Toast.makeText(currentScreen, "Email already used. Pick another one.", Toast.LENGTH_LONG).show();
                             }
                         }, error -> {
-                    LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.loginLoadingLinearLayout);
-                    loadingLinearLayout.setVisibility(View.GONE);
+                    // Recursive fix
+                    loginPageRegister( currentScreen,  emailInput,  passwordInput,
+                             firstNameInput,  lastNameInput);
+                    //LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.loginLoadingLinearLayout);
+                    //loadingLinearLayout.setVisibility(View.GONE);
                     System.out.println("Error "+error.toString());
                 });
         //Pop-up loading screen
@@ -367,7 +380,12 @@ public class DatabaseManager {
                             }catch(Exception e){
                                 Toast.makeText(currentScreen, "Some error occurred", Toast.LENGTH_LONG).show();
                             }
-                        }, error -> { System.out.println("Error "+error.toString());
+                        }, error -> {
+                    // Recursive fix
+                    reservationPageSelectedRoom( currentScreen,  valueResult,  pressedButton,
+                            allRooms,  selectedRoomReservations);
+
+                    System.out.println("Error "+error.toString());
                 });
         //Pop-up loading screen
         LinearLayout loadingLinearLayout = (LinearLayout)currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
@@ -552,7 +570,11 @@ public class DatabaseManager {
                             endMonth.setText("");
                             endYear.setText("");
 
-                        }, error -> { System.out.println("Line 347 Error "+error.toString());
+                        }, error -> {
+                    //recursive fix
+                    reservationPageReserveRoom( currentScreen,  currentUser,
+                            allRooms,  currentReservations);
+                    System.out.println("Line 347 Error "+error.toString());
                 });
         //Pop-up loading screen
         LinearLayout loadingLinearLayout = currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
@@ -617,7 +639,11 @@ public class DatabaseManager {
                                 recyclerViewAdapter.setAllUserReservations(reservationHolders1);
                                 recyclerViewAdapter.notifyDataSetChanged();
                             }catch(Exception e){ e.printStackTrace();}
-                        }, error -> { System.out.println("Error "+error.toString());
+                        }, error -> {
+                    // Recursive fix
+                    viewReservationPagePopulateRecyclerView( currentScreen,  currentUser, recyclerViewAdapter,  allRooms);
+
+                    System.out.println("Error "+error.toString());
                 });
         //TODO pop up waiting symbol, until the response is received.
 
