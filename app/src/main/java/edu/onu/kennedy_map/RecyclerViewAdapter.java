@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerAdapterViewHolder>{
@@ -50,7 +51,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             this.reservationViewCancelButton = itemView.findViewById(R.id.reservationViewCancelButton);
         }
 
-        private void bind(ReservationHolder reservationHolder,Activity screen, AbstractUser authenticatedUser, ArrayList<Room> allRooms){
+        private void bind(ReservationHolder reservationHolder,Activity screen, AbstractUser authenticatedUser, ArrayList<Room> allRooms,RecyclerViewAdapter recyclerViewAdapter,ReservationHolder[] allUserReservations){
             int reservationID = reservationHolder.getReservationID();
             String roomID = reservationHolder.getRoomID();
             String startTime = reservationHolder.getStartTime();
@@ -90,19 +91,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                                             }catch(Exception e){
                                                 reservationDeleted.set(false);
                                             }
-                                            if(reservationDeleted.get()){
-                                                Intent intent = new Intent(screen, ViewReservationsScreen.class);
-                                                intent.putExtra("user",authenticatedUser);
-                                                intent.putExtra("rooms",allRooms);
-                                                screen.startActivity(intent);
+                                            int positionOfToBeRemovedItem = RecyclerAdapterViewHolder.super.getAdapterPosition();
+                                            ArrayList<ReservationHolder> temp = new ArrayList<>(Arrays.asList(allUserReservations));
+                                            temp.remove(positionOfToBeRemovedItem);
+                                            ReservationHolder[] array = new ReservationHolder[temp.size()];
+                                            for(int i = 0; i<temp.size(); ++i){
+                                                array[i]=temp.get(i);
                                             }
-                                            else if(!reservationDeleted.get()) {
-                                                Toast.makeText(screen, "Reservation Unsuccessfully Deleted", Toast.LENGTH_LONG).show();
-                                            }
+                                            recyclerViewAdapter.allUserReservations = array;
+                                            recyclerViewAdapter.notifyDataSetChanged();
                                         }, error -> { System.out.println("Error "+error.toString());
                                 });
-                        //TODO pop up waiting symbol, until the response is received.
-                        // The code to show will be right here, but the the code to remove it will be in the listeners
 
                         // Add the request to the queue, which will complete eventually
                         APIRequestQueue.getInstance(screen.getApplicationContext()).addToRequestQueue(jsonObjectRequest);
@@ -135,14 +134,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 textView.setText(data);
                 textView.setVisibility(View.VISIBLE);
                 return true;
-                //}
-                //super.itemView.setVisibility(View.GONE);
-                //return true;
             }
         }
     }
-    // Required methods for RecyclerView
 
+    // Required methods for RecyclerView
     @NonNull
     @Override
     public RecyclerAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -154,7 +150,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapterViewHolder holder, int position) {
-        holder.bind(allUserReservations[position],this.screen,this.authenticatedUser,this.allRooms);
+        holder.bind(allUserReservations[position],this.screen,this.authenticatedUser,this.allRooms,this,allUserReservations);
     }
 
     @Override

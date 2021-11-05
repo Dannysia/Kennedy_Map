@@ -4,12 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PathScreen">
+    android:onClick="closeSliders"
+    tools:context=".PathScreen"
+    tools:ignore="DuplicateClickableBoundsCheck">
 
     <ImageView
         android:id="@+id/imageView4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:onClick="closeSliders"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -17,214 +20,240 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/pathFindTitleTextView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="4dp"
-                android:layout_weight=".20"
-                android:gravity="center"
-                android:onClick="pathFindTitleTextView"
-                android:text="Select two rooms to show the path between them!"
-                android:background="@color/ui_black"
-                android:textColor="#FFFFFF"
-                android:textSize="24sp" />
+            android:onClick="closeSliders">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginRight="0dp"
-                android:layout_weight=".15"
-                android:background="@color/ui_black"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView9"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:id="@+id/pathFindTitleTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_weight=".20"
+                    android:background="@color/ui_black"
                     android:gravity="center"
-                    android:text="Show Floor:"
+                    android:onClick="closeSliders"
+                    android:text="Select two rooms to show the path between them!"
                     android:textColor="#FFFFFF"
                     android:textSize="24sp" />
 
-                <RadioGroup
-                    android:id="@+id/pathFloorRadioGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/pathFloorOneRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:clickable="true"
-                        android:onClick="pathFloorOneRadioButton"
-                        android:text="1"
-                        android:textColor="#FFFFFF" />
-
-                    <RadioButton
-                        android:id="@+id/pathFloorTwoRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:onClick="pathFloorTwoRadioButton"
-                        android:text="2"
-                        android:textColor="#FFFFFF" />
-
-                    <RadioButton
-                        android:id="@+id/pathFloorThreeRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:onClick="pathFloorThreeRadioButton"
-                        android:text="3"
-                        android:textColor="#FFFFFF" />
-
-                </RadioGroup>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/animationSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginRight="0dp"
+                    android:layout_weight=".15"
                     android:background="@color/ui_black"
-                    android:onClick="animationSwitch"
-                    android:text="Animations"
-                    android:textColor="#FFFFFF" />
-            </LinearLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1.4">
-
-                <ImageView
-                    android:id="@+id/pathFindImageView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:adjustViewBounds="false"
-                    android:onClick="pathFindImageView"
-                    app:srcCompat="@drawable/floor_1" />
-
-                <edu.onu.kennedy_map.DrawableSurfaceView
-                    android:id="@+id/floorDSV"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="visible" />
-
-
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_weight=".4"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/textView13"
+                        android:id="@+id/textView9"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
-                        android:background="@color/ui_black"
-                        android:text="Starting Room: "
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Show Floor:"
                         android:textColor="#FFFFFF"
                         android:textSize="24sp" />
 
-                    <Button
-                        android:id="@+id/pathFindRoomOneButton"
+                    <RadioGroup
+                        android:id="@+id/pathFloorRadioGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="pathFindRoomOneButton"
-                        android:text="Click to set room" />
-                </LinearLayout>
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/pathFloorOneRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:clickable="true"
+                            android:onClick="pathFloorOneRadioButton"
+                            android:text="1"
+                            android:textColor="#FFFFFF" />
 
-                    <TextView
-                        android:id="@+id/textView14"
+                        <RadioButton
+                            android:id="@+id/pathFloorTwoRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:onClick="pathFloorTwoRadioButton"
+                            android:text="2"
+                            android:textColor="#FFFFFF" />
+
+                        <RadioButton
+                            android:id="@+id/pathFloorThreeRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:onClick="pathFloorThreeRadioButton"
+                            android:text="3"
+                            android:textColor="#FFFFFF" />
+
+                    </RadioGroup>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/animationSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
+                        android:layout_gravity="top"
                         android:background="@color/ui_black"
-                        android:text="Ending Room:   "
-                        android:textColor="#FFFFFF"
-                        android:textSize="24sp" />
-
-                    <Button
-                        android:id="@+id/pathFindRoomTwoButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="pathFindRoomTwoButton"
-                        android:text="Click to set room" />
+                        android:onClick="animationSwitch"
+                        android:text="Animations"
+                        android:textColor="#FFFFFF" />
                 </LinearLayout>
 
-                <LinearLayout
+                <edu.onu.kennedy_map.MapZoomAndPanLayout
+                    android:id="@+id/pathFindZoomMap"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="4dp"
+                    android:layout_weight="1.4">
 
-                    <Button
-                        android:id="@+id/pathFindCalculateButton"
+                    <ImageView
+                        android:id="@+id/pathFindImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:adjustViewBounds="false"
+
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        app:srcCompat="@drawable/floor_1"
+                        tools:ignore="SpeakableTextPresentCheck" />
+
+                    <edu.onu.kennedy_map.DrawableSurfaceView
+                        android:id="@+id/floorDSV"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:onClick="pathFindCalculateButton"
-                        android:text="Show me the Path!" />
-                </LinearLayout>
+                        android:layout_height="match_parent"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:onClick="closeSliders"
+                        android:visibility="visible" />
 
+
+                </edu.onu.kennedy_map.MapZoomAndPanLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight=".4"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView13"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:background="@color/ui_black"
+                            android:text="Starting Room: "
+                            android:textColor="#FFFFFF"
+                            android:textSize="24sp" />
+
+                        <Button
+                            android:id="@+id/pathFindRoomOneButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="pathFindRoomOneButton"
+                            android:text="Click to set room" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView14"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:background="@color/ui_black"
+                            android:text="Ending Room:   "
+                            android:textColor="#FFFFFF"
+                            android:textSize="24sp" />
+
+                        <Button
+                            android:id="@+id/pathFindRoomTwoButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="pathFindRoomTwoButton"
+                            android:text="Click to set room" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/pathFindCalculateButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:onClick="pathFindCalculateButton"
+                            android:text="Show me the Path!" />
+                    </LinearLayout>
+
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+
+            <Button
+                android:id="@+id/testButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:onClick="closeSliders"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
         <com.dpizarro.uipicker.library.picker.PickerUI
             android:id="@+id/startingRoomPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:visibility="visible">
+
+        </com.dpizarro.uipicker.library.picker.PickerUI>
 
         <com.dpizarro.uipicker.library.picker.PickerUI
             android:id="@+id/endingRoomPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:visibility="visible">
+
+        </com.dpizarro.uipicker.library.picker.PickerUI>
     </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

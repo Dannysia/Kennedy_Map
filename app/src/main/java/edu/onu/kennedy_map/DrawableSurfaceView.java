@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -289,6 +290,11 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
             }
             retying = false;
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent me){
+        return false;
     }
 
     // Change these to change what is drawn

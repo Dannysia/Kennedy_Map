@@ -43,9 +43,12 @@ public class ReservationScreen extends AppCompatActivity {
         //Toast.makeText(ReservationScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
         setTitle("Reservation Screen            Options:");
         setContentView(R.layout.reservation_screen);
-        TextView reservationsListTextView = findViewById(R.id.reservationsListTextView);
-        reservationsListTextView.setMovementMethod(new ScrollingMovementMethod());
-        //TODO we can worry about moving all this stuff to the rooms class later
+
+        // How to add scrolling to stuff
+        // Add the two lines of code below for the wanted textview
+        // Make sure the height is set to a static value in the xml
+        TextView currentReservationsTextView = findViewById(R.id.currentReservationsTextView);
+        currentReservationsTextView.setMovementMethod(new ScrollingMovementMethod());
 
         //Populate dropdown
         //DatabaseManager.getInstance().reservationPageLoadRooms(this);
@@ -115,7 +118,7 @@ public class ReservationScreen extends AppCompatActivity {
             storageMinute.setText(""+minuteText);
         }
     }
-    // TODO: Make sure display month is fixed
+
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
         private Button clickedButton;
         private TextView storageDay;
@@ -229,6 +232,12 @@ public class ReservationScreen extends AppCompatActivity {
 
         DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser,
                 allRooms,selectedRoomReservations);
+
+        // Instead of refreshing the TextView. I will just make them select the room again.
+        Button selectRoomButton = findViewById(R.id.selectRoomButton);
+        selectRoomButton.setText("Select a room");
+        TextView currentReservationsTextView = findViewById(R.id.currentReservationsTextView);
+        currentReservationsTextView.setText("Select a room to see reservations!");
     }
 
     // ---------------------- This stuff is used for the top-right dropdown menu

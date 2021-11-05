@@ -63,6 +63,9 @@ public class PathScreen extends AppCompatActivity {
                 .build();
         startingRoomPicker.setSettings(pickerUISettings);
         endingRoomPicker.setSettings(pickerUISettings);
+
+        MapZoomAndPanLayout pathFindZoomMap = findViewById(R.id.pathFindZoomMap);
+
     }
 
     public void pathFindRoomOneButton(View view){
@@ -72,6 +75,8 @@ public class PathScreen extends AppCompatActivity {
 
             pathFindRoomOneButton.setText(valueResult);
         });
+        Button testButton = findViewById(R.id.testButton);
+        testButton.setVisibility(View.VISIBLE);
         startingRoomPicker.slide(0);
     }
     public void pathFindRoomTwoButton(View view){
@@ -81,17 +86,24 @@ public class PathScreen extends AppCompatActivity {
 
             pathFindRoomTwoButton.setText(valueResult);
         });
+        Button testButton = findViewById(R.id.testButton);
+        testButton.setVisibility(View.VISIBLE);
         endingRoomPicker.slide(0);
     }
-    public void pathFindImageView(View view){
+    public void closeSliders(View view){
         PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
         PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
         if(startingRoomPicker.isPanelShown()){
+
             startingRoomPicker.slide();
         }else if(endingRoomPicker.isPanelShown()){
             endingRoomPicker.slide();
         }
+        Button testButton = findViewById(R.id.testButton);
+        testButton.setVisibility(View.GONE);
     }
+
+
 
     // TODO: Call path find algorithm, then update imageViews appropriately
     public void pathFindCalculateButton(View view){
@@ -149,16 +161,6 @@ public class PathScreen extends AppCompatActivity {
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_3);
         floorDSV.changeFloorCMD(3);
-    }
-
-    public void pathFindTitleTextView(View view){
-        PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
-        PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
-        if(startingRoomPicker.isPanelShown()){
-            startingRoomPicker.slide();
-        }else if(endingRoomPicker.isPanelShown()){
-            endingRoomPicker.slide();
-        }
     }
 
     public void animationSwitch(View view){

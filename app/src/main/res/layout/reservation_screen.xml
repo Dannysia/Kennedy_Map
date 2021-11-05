@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTintMode="add"
+    android:scrollbars="vertical"
     tools:context=".ReservationScreen">
 
     <ImageView
@@ -179,16 +180,15 @@
             <TextView
                 android:id="@+id/currentReservationsTextView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginRight="5dp"
                 android:background="@color/ui_black"
                 android:gravity="center"
-                android:maxLines="4"
-                android:minLines="1"
+                android:text="Select a room to see reservations!"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/textView10"

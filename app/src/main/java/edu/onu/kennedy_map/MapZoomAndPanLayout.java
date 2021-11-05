@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
+import com.dpizarro.uipicker.library.picker.PickerUI;
+
 public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener {
     public MapZoomAndPanLayout(@NonNull Context context) {super(context);}
 
@@ -48,7 +50,9 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
         return true;
     }
     @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) { return true; }
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+
+        return true; }
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) { }
 
@@ -85,6 +89,7 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
             }
             scaleGestureDetector.onTouchEvent(motionEvent);
 
+
             if ((actionID == 1 && imageZoom >= MIN_ZOOM) || actionID == 2) {
                 // The first item in the frame view is the picture
                 View pictureToZoom  = getChildAt(0);
@@ -98,6 +103,19 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
                 pictureToZoom.setScaleY((float) imageZoom);
                 pictureToZoom.setTranslationX((float) imageX);
                 pictureToZoom.setTranslationY((float) imageY);
+                if(getChildAt(1)!=null){
+                    View pictureToZoom2  = getChildAt(1);
+                    pictureToZoom2.performClick();
+                    // Calculates the maximum it can go before it would go off the image.
+                    imageX = Math.min(Math.max(imageX, - ((pictureToZoom2.getWidth() - (pictureToZoom2.getWidth() / imageZoom)) / 2 * imageZoom)),
+                            ((pictureToZoom2.getWidth() - (pictureToZoom2.getWidth() / imageZoom)) / 2 * imageZoom));
+                    imageY = Math.min(Math.max(imageY, - ((pictureToZoom2.getHeight() - (pictureToZoom2.getHeight() / imageZoom))/ 2 * imageZoom)),
+                            ((pictureToZoom2.getHeight() - (pictureToZoom2.getHeight() / imageZoom))/ 2 * imageZoom));
+                    pictureToZoom2.setScaleX((float) imageZoom);
+                    pictureToZoom2.setScaleY((float) imageZoom);
+                    pictureToZoom2.setTranslationX((float) imageX);
+                    pictureToZoom2.setTranslationY((float) imageY);
+                }
             }
             return true;
         });

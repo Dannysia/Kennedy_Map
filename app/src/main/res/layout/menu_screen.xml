@@ -123,24 +123,7 @@
                 android:layout_gravity="right"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/mapZoomButton"
-                    android:layout_width="48dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="mapZoomButton"
-                    android:text="+" />
-
-                <Button
-                    android:id="@+id/mapZoomOutButton"
-                    android:layout_width="48dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="mapZoomOutButton"
-                    android:text="-" />
-            </LinearLayout>
+                android:orientation="horizontal"/>
 
         </edu.onu.kennedy_map.MapZoomAndPanLayout>
 

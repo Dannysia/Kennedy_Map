@@ -44,6 +44,8 @@ public class ViewReservationsScreen extends AppCompatActivity {
         // Now make a request and get the list of all the users reservations
         DatabaseManager.getInstance().viewReservationPagePopulateRecyclerView(this,
                 (RegisteredUser) authenticatedUser,recyclerViewAdapter,allRooms);
+
+
     }
 
     public void returnToReservationScreenButton(View view){
