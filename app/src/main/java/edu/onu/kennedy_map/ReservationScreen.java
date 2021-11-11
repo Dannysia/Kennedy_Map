@@ -17,6 +17,7 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -64,6 +65,10 @@ public class ReservationScreen extends AppCompatActivity {
         for (int i = 0; i<reservableRooms.size();i++){
             roomShortNames.add(reservableRooms.get(i).getShortName());
         }
+
+        // Add placeholder at beginning of arraylist:
+        roomShortNames.add(0,"Select A Room");
+
 
         PickerUISettings pickerUISettings = new PickerUISettings.Builder()
                 .withItems(roomShortNames)
@@ -195,7 +200,7 @@ public class ReservationScreen extends AppCompatActivity {
         roomPicker.setOnClickItemPickerUIListener((which, position, valueResult) -> {
 
             // Query the database for the reservations for the selected room
-            if(valueResult != null && !valueResult.equals("")){
+            if(valueResult != null && !valueResult.equals("") && !valueResult.equalsIgnoreCase("Select a Room")){
                 System.out.println(valueResult);
                 DatabaseManager.getInstance().reservationPageSelectedRoom(ReservationScreen.this,valueResult,selectRoomButton,
                         allRooms,selectedRoomReservations);
@@ -229,13 +234,27 @@ public class ReservationScreen extends AppCompatActivity {
         startActivity(intent1);
     }
     public void reserveConfirmButton(View view){
+        Button selectRoomButton = findViewById(R.id.selectRoomButton);
+
+        if(selectRoomButton.getText().toString().equalsIgnoreCase("Select a Room")){
+            Toast.makeText(this, "Please select a room", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         DatabaseManager.getInstance().reservationPageReserveRoom(this, (RegisteredUser) authenticatedUser,
                 allRooms,selectedRoomReservations);
 
-        // Instead of refreshing the TextView. I will just make them select the room again.
-        Button selectRoomButton = findViewById(R.id.selectRoomButton);
+        // Wipe the inputs afresh
         selectRoomButton.setText("Select a room");
+        Button endDateButton = findViewById(R.id.endDateButton);
+        endDateButton.setText("Set End Date");
+        Button startDateButton = findViewById(R.id.startDateButton);
+        startDateButton.setText("Set Start Date");
+        Button endTimeButton = findViewById(R.id.endTimeButton);
+        endTimeButton.setText("Set End Time");
+        Button startTimeButton =findViewById(R.id.startTimeButton);
+        startTimeButton.setText("Set Start Time");
+
         TextView currentReservationsTextView = findViewById(R.id.currentReservationsTextView);
         currentReservationsTextView.setText("Select a room to see reservations!");
     }

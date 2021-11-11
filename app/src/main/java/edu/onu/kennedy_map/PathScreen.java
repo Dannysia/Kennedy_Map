@@ -53,6 +53,9 @@ public class PathScreen extends AppCompatActivity {
             System.out.println(string);
         }
 
+        // Add placeholder at beginning of arraylist:
+        roomShortNames.add(0,"Click to Set Room");
+
         PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
         PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
         PickerUISettings pickerUISettings = new PickerUISettings.Builder()
@@ -64,7 +67,7 @@ public class PathScreen extends AppCompatActivity {
         startingRoomPicker.setSettings(pickerUISettings);
         endingRoomPicker.setSettings(pickerUISettings);
 
-        MapZoomAndPanLayout pathFindZoomMap = findViewById(R.id.pathFindZoomMap);
+        //MapZoomAndPanLayout pathFindZoomMap = findViewById(R.id.pathFindZoomMap);
 
     }
 
@@ -103,9 +106,6 @@ public class PathScreen extends AppCompatActivity {
         testButton.setVisibility(View.GONE);
     }
 
-
-
-    // TODO: Call path find algorithm, then update imageViews appropriately
     public void pathFindCalculateButton(View view){
         // Using the name of the selected rooms in the buttons, get the Room object from the arraylist and pass to algorithm
         Button pathFindRoomOneButton = findViewById(R.id.pathFindRoomOneButton);
@@ -178,7 +178,6 @@ public class PathScreen extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.path_screen_menu, menu);
-
         return true;
     }
 

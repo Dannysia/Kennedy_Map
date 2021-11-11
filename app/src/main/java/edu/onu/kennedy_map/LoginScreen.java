@@ -96,7 +96,6 @@ public class LoginScreen extends AppCompatActivity {
 				return;
 			}
 		}
-
 		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText,allRooms);
 	}
 

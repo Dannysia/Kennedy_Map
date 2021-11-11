@@ -119,7 +119,7 @@
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
 
-                <edu.onu.kennedy_map.MapZoomAndPanLayout
+                <FrameLayout
                     android:id="@+id/pathFindZoomMap"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -150,7 +150,7 @@
                         android:visibility="visible" />
 
 
-                </edu.onu.kennedy_map.MapZoomAndPanLayout>
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
