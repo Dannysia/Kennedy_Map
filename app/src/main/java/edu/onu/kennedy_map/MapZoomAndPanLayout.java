@@ -14,7 +14,7 @@ import com.dpizarro.uipicker.library.picker.PickerUI;
 public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener {
 
     public MapZoomAndPanLayout(@NonNull Context context) {super(context);}
-    // Need these two constructors or android isn't happy
+    // Need these two constructors for use in the XML
     public MapZoomAndPanLayout(Context context, AttributeSet attributeSet) { super(context, attributeSet);init(context); }
     public MapZoomAndPanLayout(Context context, AttributeSet attributeSet, int androidStyle) { super(context, attributeSet, androidStyle);init(context); }
 
@@ -63,6 +63,7 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
                 case MotionEvent.ACTION_POINTER_DOWN:
                     actionID = 2;
                     break;
+
                 case MotionEvent.ACTION_DOWN:
                     if (imageZoom > MIN_ZOOM) {
                         actionID = 1;
@@ -70,6 +71,8 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
                         startPositionY = motionEvent.getY() - previousPositionY;
                     }
                     break;
+
+
                 case MotionEvent.ACTION_POINTER_UP:
                     actionID = 1;
                     break;
@@ -78,12 +81,15 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
                     previousPositionX = imageX;
                     previousPositionY = imageY;
                     break;
+
                 case MotionEvent.ACTION_MOVE:
                     if (actionID == 1) {
                         imageX = motionEvent.getX() - startPositionX;
                         imageY = motionEvent.getY() - startPositionY;
                     }
                     break;
+
+
             }
             scaleGestureDetector.onTouchEvent(motionEvent);
 
@@ -94,10 +100,12 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
                 View pictureToZoom  = getChildAt(0);
                 pictureToZoom.performClick();
 
-                // Calculates the maximum it can go before it would go off the image.
-                imageX = Math.min(Math.max(imageX, - ((pictureToZoom.getWidth() - (pictureToZoom.getWidth() / imageZoom)) / 2 * imageZoom)),
+                // Calculates the amount it can go before it would go out of bounds of the display space.
+                imageX = Math.min(Math.max(imageX, - ((pictureToZoom.getWidth() - (pictureToZoom.getWidth() /
+                                imageZoom)) / 2 * imageZoom)),
                         ((pictureToZoom.getWidth() - (pictureToZoom.getWidth() / imageZoom)) / 2 * imageZoom));
-                imageY = Math.min(Math.max(imageY, - ((pictureToZoom.getHeight() - (pictureToZoom.getHeight() / imageZoom))/ 2 * imageZoom)),
+                imageY = Math.min(Math.max(imageY, - ((pictureToZoom.getHeight() - (pictureToZoom.getHeight()
+                                / imageZoom))/ 2 * imageZoom)),
                         ((pictureToZoom.getHeight() - (pictureToZoom.getHeight() / imageZoom))/ 2 * imageZoom));
 
                 // Finishes up and sets the scale based on the finger movements, then if they are panning as well the translation of the image.

@@ -20,6 +20,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * The purpose of this screen is to display reservations for the current user and also allow them to cancel any reservation.
+ */
 @SuppressWarnings("unchecked")
 public class ViewReservationsScreen extends AppCompatActivity {
 
@@ -32,6 +35,8 @@ public class ViewReservationsScreen extends AppCompatActivity {
         authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
         allRooms = (ArrayList<Room>)getIntent().getSerializableExtra("rooms");
         setTitle("Your Reservations:          ");
+
+        // Set up user interface element
         RecyclerView recyclerView = findViewById(R.id.viewUserReservationsRecyclerView);
         RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getIntent(),this,authenticatedUser,allRooms);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -39,13 +44,9 @@ public class ViewReservationsScreen extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recyclerViewAdapter);
 
-        //TODO make list item disappear when reservation is canceled
-
         // Now make a request and get the list of all the users reservations
         DatabaseManager.getInstance().viewReservationPagePopulateRecyclerView(this,
                 (RegisteredUser) authenticatedUser,recyclerViewAdapter,allRooms);
-
-
     }
 
     public void returnToReservationScreenButton(View view){
@@ -54,6 +55,4 @@ public class ViewReservationsScreen extends AppCompatActivity {
         intent1.putExtra("rooms",allRooms);
         startActivity(intent1);
     }
-
-
 }

@@ -16,6 +16,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+/**
+ *  This class acts as the jump pad to the features of the app: reservation and navigation.
+ *  Additionally, a zoomable map is accessible on this screen.
+ */
 @SuppressWarnings("unchecked")
 public class MenuScreen extends AppCompatActivity {
 
@@ -25,7 +29,7 @@ public class MenuScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Main Menu                           Options:"); // pro code
+        setTitle("Main Menu                           Options:");
         // use getExtra to get either the GuestUser or RegisteredUser and store it in authenticatedUser
         authenticatedUser = (AbstractUser) getIntent().getSerializableExtra("user");
         allRooms = (ArrayList<Room>) getIntent().getSerializableExtra("rooms");
@@ -82,7 +86,8 @@ public class MenuScreen extends AppCompatActivity {
 
     // --------------------------- END Reserve Button and Navigate Buttons --------------------------------------
 
-    //TODO Need to fix the MapZoomAndPanLayout class in order to do it this way
+    //These may be used in the future
+
     public void mapZoomButton(View view){
         MapZoomAndPanLayout mapZoomAndPanLayout = findViewById(R.id.mapZoomAndPanLayout);
         mapZoomAndPanLayout.getChildAt(0).setScaleX((float) (mapZoomAndPanLayout.getChildAt(0).getScaleX()+0.25));

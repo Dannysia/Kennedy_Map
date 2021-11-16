@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LoginScreen extends AppCompatActivity {
 
-	// TODO add button debouncing
+/**
+ * The LoginScreen class is the first screen the user sees, and handles the range of logging in activities for the app.
+ */
+public class LoginScreen extends AppCompatActivity {
 
 	private ArrayList<Room> allRooms = new ArrayList<>();
 	@Override
@@ -57,21 +59,18 @@ public class LoginScreen extends AppCompatActivity {
 	// This is the functionality when they first enter the app.
 	// ----------------------------------------------- Title Portion -----------------------------------------------
 	public void proceedToSigninButton(View view){
-		//TODO add animation to pressing the sign in button
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signinSignupLayout.setVisibility(View.GONE);
 		signinLayout.setVisibility(View.VISIBLE);
 	}
 	public void proceedToSignupButton(View view){
-		//TODO add animation to pressing the sign up button
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signupLayout);
 		signinSignupLayout.setVisibility(View.GONE);
 		signupLayout.setVisibility(View.VISIBLE);
 	}
 	public void guestButton(View view){
-		//TODO make sure to pass a GuestUser as the extra along with this startActivity later
 		Intent intent = new Intent(this, MenuScreen.class);
 		GuestUser guestUser = (GuestUser) new ConcreteGuestUserCreator().createUser("GUEST",-1);
 		intent.putExtra("user",guestUser);
@@ -100,14 +99,12 @@ public class LoginScreen extends AppCompatActivity {
 	}
 
 	public void forgotPasswordButton(View view){
-		//TODO add animation to pressing the sign in button
 		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signinLayout.setVisibility(View.GONE);
 		forgotPasswordLayout.setVisibility(View.VISIBLE);
 	}
 	public void returnToTitleButton(View view){
-		//TODO add animation to pressing the sign in button
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signinLayout.setVisibility(View.GONE);
@@ -133,7 +130,6 @@ public class LoginScreen extends AppCompatActivity {
 
 	}
 	public void returnToSigninButton(View view){
-		//TODO add animation to pressing the sign in button
 		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signinLayout.setVisibility(View.VISIBLE);
@@ -172,7 +168,6 @@ public class LoginScreen extends AppCompatActivity {
 		DatabaseManager.getInstance().loginPageRegister(this,emailSignupEditText,passwordSignupEditText,firstNameSignUpEditText,lastNameSignUpEditText);
 	}
 	public void returnToTitleButton2(View view){
-		//TODO add animation to pressing the sign in button
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signupLayout.setVisibility(View.GONE);

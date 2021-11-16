@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Required to use the RecyclerView, defines the behavior and content
+ */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerAdapterViewHolder>{
     private ReservationHolder[] allUserReservations;
     private Intent intent;
@@ -37,6 +40,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         this.screen=screen;
     }
 
+    /**
+     * Defines the modular information layouts and the listeners that will be displayed inside the RecyclerView
+     */
     public static class RecyclerAdapterViewHolder extends RecyclerView.ViewHolder{
         public final TextView reservationViewRoomIDTextView;
         public final TextView reservationViewStartTime;

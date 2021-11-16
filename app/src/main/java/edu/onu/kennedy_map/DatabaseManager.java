@@ -45,7 +45,7 @@ public class DatabaseManager {
      * @param loginScreen The loginscreen activity class
      * @param allRooms The array to fill
      */
-    public void getRooms(Activity loginScreen,ArrayList<Room> allRooms){
+        public void getRooms(Activity loginScreen,ArrayList<Room> allRooms){
         String roomIDEndpoint =ENDPOINT+"/roomsWithInformation"; // 1. Endpoint
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, roomIDEndpoint, null,
@@ -605,7 +605,8 @@ public class DatabaseManager {
      * @param recyclerViewAdapter The recyclerViewAdapter to fill with information.
      * @param allRooms List of all the rooms
      */
-    public void viewReservationPagePopulateRecyclerView(Activity currentScreen, RegisteredUser currentUser,RecyclerViewAdapter recyclerViewAdapter, ArrayList<Room> allRooms){
+    public void viewReservationPagePopulateRecyclerView(Activity currentScreen, RegisteredUser currentUser,
+                                                        RecyclerViewAdapter recyclerViewAdapter, ArrayList<Room> allRooms){
         String authenticationEndpoint = ENDPOINT+"/reservations/user/"+
                 currentUser.getUserID(); // 1. Endpoint
         ArrayList<ReservationHolder> reservationHolders = new ArrayList<>();

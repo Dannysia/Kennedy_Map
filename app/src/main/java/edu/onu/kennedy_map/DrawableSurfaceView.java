@@ -327,7 +327,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         pathNodePaint.setStrokeWidth(10);
         pathNodePaint.setAntiAlias(true);
         //pathNodePaint.setAlpha(127);
-        pathNodePaint.setColor(Color.rgb(176,38,255));
+        pathNodePaint.setColor(Color.rgb(176,0,0));
 
         startNodePaint = new Paint();
         startNodePaint.setStyle(Paint.Style.FILL_AND_STROKE);

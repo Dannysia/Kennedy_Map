@@ -1,8 +1,11 @@
 package edu.onu.kennedy_map;
 
+/**
+ * Holder class for Reservation start and end SQL DateTime string representations with appropriate getters
+ */
 public class Reservation {
-    private String startDateTime;
-    private String endDateTime;
+    private final String startDateTime;
+    private final String endDateTime;
 
     public Reservation(String startDateTime,String endDateTime){
         this.startDateTime=startDateTime;
@@ -13,15 +16,7 @@ public class Reservation {
         return startDateTime;
     }
 
-    public void setStartDateTime(String startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
     public String getEndDateTime() {
         return endDateTime;
-    }
-
-    public void setEndDateTime(String endDateTime) {
-        this.endDateTime = endDateTime;
     }
 }

@@ -30,6 +30,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+/**
+ * Provides the graphical user interface for making reservations in the engineering building.
+ */
 @SuppressWarnings("unchecked")
 public class ReservationScreen extends AppCompatActivity {
 
@@ -82,6 +85,9 @@ public class ReservationScreen extends AppCompatActivity {
         loadingLinearLayout.setVisibility(View.GONE);
     }
 
+    /**
+     * Displays a Time Picker screen when the relevant button is pressed. Uses android native picker.
+     */
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
         private Button button;
         private TextView storageHour;
@@ -124,6 +130,9 @@ public class ReservationScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays a Date Picker screen when the relevant button is pressed. Uses android native picker.
+     */
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
         private Button clickedButton;
         private TextView storageDay;
@@ -163,6 +172,7 @@ public class ReservationScreen extends AppCompatActivity {
             storageYear.setText(""+year);
         }
     }
+
     public void startTimeButton(View view){
         Button startTimeButton =findViewById(R.id.startTimeButton);
         TextView startHour = findViewById(R.id.startHour);
