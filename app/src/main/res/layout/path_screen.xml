@@ -16,7 +16,8 @@
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/reservation_background" />
+        app:srcCompat="@drawable/reservation_background"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
                     android:id="@+id/pathFindTitleTextView"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginBottom="4dp"
@@ -46,7 +47,7 @@
                     android:onClick="closeSliders"
                     android:text="Select two rooms to show the path between them!"
                     android:textColor="#FFFFFF"
-                    android:textSize="24sp" />
+                    android:textSize="20sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -116,7 +117,8 @@
                         android:background="@color/ui_black"
                         android:onClick="animationSwitch"
                         android:text="Animations"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="#FFFFFF"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <FrameLayout
@@ -157,7 +159,7 @@
                     android:layout_height="0dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
-                    android:layout_weight=".4"
+                    android:layout_weight=".42"
                     android:orientation="vertical">
 
                     <LinearLayout
