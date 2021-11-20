@@ -150,14 +150,14 @@ public class PathScreen extends AppCompatActivity {
 
         //Pathfind returns true if a path was found and false if there is no path, debug only
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
-        /*
+
         if(pathFind.pathFindBetween(startRoom, endRoom)){
             Log.d("PathFind", "debugClick: Path Found!");
         } else {
             Log.d("PathFind", "debugClick: Path NOT Found!");
         }
 
-         */
+
     }
     // Display the first floor of the path finding
     public void pathFloorOneRadioButton(View view){
