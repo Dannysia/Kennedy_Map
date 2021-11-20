@@ -3,13 +3,19 @@ package edu.onu.kennedy_map;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,9 +41,6 @@ public class MenuScreen extends AppCompatActivity {
         allRooms = (ArrayList<Room>) getIntent().getSerializableExtra("rooms");
         //Toast.makeText(MenuScreen.this, ""+authenticatedUser.getUserID(), Toast.LENGTH_LONG).show();
         setContentView(R.layout.menu_screen);
-
-
-        // Setup floor radio buttons
 
     }
 
@@ -86,8 +89,8 @@ public class MenuScreen extends AppCompatActivity {
 
     // --------------------------- END Reserve Button and Navigate Buttons --------------------------------------
 
-    //These may be used in the future
-
+    // These may be used in the future
+    /*
     public void mapZoomButton(View view){
         MapZoomAndPanLayout mapZoomAndPanLayout = findViewById(R.id.mapZoomAndPanLayout);
         mapZoomAndPanLayout.getChildAt(0).setScaleX((float) (mapZoomAndPanLayout.getChildAt(0).getScaleX()+0.25));
@@ -98,6 +101,7 @@ public class MenuScreen extends AppCompatActivity {
         mapZoomAndPanLayout.getChildAt(0).setScaleX((float) (mapZoomAndPanLayout.getChildAt(0).getScaleX()-0.25));
         mapZoomAndPanLayout.getChildAt(0).setScaleY((float) (mapZoomAndPanLayout.getChildAt(0).getScaleY()-0.25));
     }
+     */
 
 
     // ---------------------- This stuff is used for the top-right dropdown menu
@@ -106,6 +110,8 @@ public class MenuScreen extends AppCompatActivity {
         inflater.inflate(R.menu.main_screen_menu, menu);
         return true;
     }
+
+    @SuppressLint("NonConstantResourceId")
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             // Add cases with the buttonID as you need more menu options
@@ -115,6 +121,25 @@ public class MenuScreen extends AppCompatActivity {
                 intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent2);
                 return true;
+
+            case R.id.menuSendFeedback:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Enter Feedback: ");
+                View viewInflated = LayoutInflater.from(this).inflate(R.layout.send_feedback,
+                        (ViewGroup) findViewById(R.id.menuScreenConstraintLayout).getRootView(), false);
+                final EditText input = (EditText) viewInflated.findViewById(R.id.feedbackEntryEditText);
+                builder.setView(viewInflated);
+
+                // Set button listeners
+                builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    dialog.dismiss();
+                    DatabaseManager.getInstance().sendFeedback(MenuScreen.this,authenticatedUser.getUserID()+"",input);
+                });
+                builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                builder.show();
+
+                return true;
+
             default:
                 return false;
         }

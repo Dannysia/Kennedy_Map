@@ -670,5 +670,41 @@ public class DatabaseManager {
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
 
+    public void sendFeedback(Activity currentScreen, String currentUser, EditText feedback){
+        String sendFeedbackEndpoint = ENDPOINT+"/sendFeedback"; // 1. Endpoint
+        JSONObject requestBody=null;
+        try {
+            requestBody = new JSONObject();
+            requestBody.put("user", currentUser);
+            requestBody.put("feedback", feedback.getText().toString());
+            System.out.println("Sent Content: "+requestBody.toString());
+        }catch (JSONException ignored){ }
+        AtomicBoolean successBoolean = new AtomicBoolean(false);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, sendFeedbackEndpoint, requestBody,
+                        response -> {
+                            try{
+                                boolean successToAddAccount = response.getBoolean("creationSuccessful");
+                                successBoolean.set(successToAddAccount);
+                                System.out.println("Recieved Content: "+successBoolean.get());
+
+                            }catch(Exception e){
+                                successBoolean.set(false);
+                            }
+                            if(successBoolean.get()){
+                                Toast.makeText(currentScreen, "Feedback successfully sent. Thanks!", Toast.LENGTH_LONG).show();
+                            }
+                            else if(!successBoolean.get()) {
+                                Toast.makeText(currentScreen, "Feedback unsuccessfully sent.", Toast.LENGTH_LONG).show();
+                            }
+                        }, error -> {
+                    Toast.makeText(currentScreen, "Feedback successfully sent. Thanks!", Toast.LENGTH_LONG).show();
+                    System.out.println("Error "+error.toString());
+                });
+
+        // Add the request to the queue, which will complete eventually
+        APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
+    }
+
 
 }
