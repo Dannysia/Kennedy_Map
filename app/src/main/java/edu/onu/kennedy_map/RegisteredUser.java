@@ -44,6 +44,10 @@ public class RegisteredUser extends AbstractUser implements Serializable {
         return userInfo.get(infoID);
     }
 
+    /**
+     * Returns the user ID of the current user
+     * @return The User ID
+     */
     @Override
     public int getUserID() {
         return userID;

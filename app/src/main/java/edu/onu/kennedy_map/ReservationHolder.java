@@ -21,6 +21,7 @@ public class ReservationHolder implements Serializable {
         this.endTime=endTime;
     }
 
+    // All the getters and setters for the reservation holder
     public String getRoomID() { return roomID; }
     public int getUserID() { return userID; }
     public String getStartTime() { return startTime; }

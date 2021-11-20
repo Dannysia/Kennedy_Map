@@ -32,6 +32,7 @@ public class MenuScreen extends AppCompatActivity {
     private AbstractUser authenticatedUser;
     private ArrayList<Room> allRooms;
 
+    // When this screen is loaded, the display is set and the passed info is retrieved and stored in this activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,7 @@ public class MenuScreen extends AppCompatActivity {
     }
 
     // ------------------------------------------- Floor Buttons ------------------------------------------------
+    // Floor One Radio button event handle changes the picture to the first floor, along with the first floor description
     public void floorOneRadioButton(View view){
         ImageView floorImageView = findViewById(R.id.floorImageView);
         TextView floorDescriptionTextView = findViewById(R.id.floorDescriptionTextView);
@@ -52,6 +54,7 @@ public class MenuScreen extends AppCompatActivity {
                 " the Innovation Center, Dean's Office, and Shop.");
         floorImageView.setImageResource(R.drawable.engineering_floor_one);
     }
+    // Floor Two Radio button event handle changes the picture to the second floor, along with the second floor description
     public void floorTwoRadioButton(View view){
         ImageView floorImageView = findViewById(R.id.floorImageView);
         TextView floorDescriptionTextView = findViewById(R.id.floorDescriptionTextView);
@@ -59,6 +62,7 @@ public class MenuScreen extends AppCompatActivity {
                 " edge. There are multiple computer labs on this floor.");
         floorImageView.setImageResource(R.drawable.engineering_floor_two);
     }
+    // Floor Three Radio button event handle changes the picture to the third floor, along with the third floor description
     public void floorThreeRadioButton(View view){
         ImageView floorImageView = findViewById(R.id.floorImageView);
         TextView floorDescriptionTextView = findViewById(R.id.floorDescriptionTextView);
@@ -70,6 +74,7 @@ public class MenuScreen extends AppCompatActivity {
 
     // ------------------------------- Reserve Button and Navigate Buttons --------------------------------------
 
+    // Changes the view to the reservations screen if the user is a registered user
     public void reservationButton(View view){
         if(authenticatedUser.getUserID()!=-1){
             Intent intent = new Intent(MenuScreen.this, ReservationScreen.class);
@@ -80,6 +85,8 @@ public class MenuScreen extends AppCompatActivity {
             Toast.makeText(MenuScreen.this, "Guests cannot make Reservations", Toast.LENGTH_LONG).show();
         }
     }
+
+    // Changes the floor to the path find screen
     public void pathFindButton(View view){
         Intent intent = new Intent(MenuScreen.this, PathScreen.class);
         intent.putExtra("user",authenticatedUser);
@@ -105,12 +112,14 @@ public class MenuScreen extends AppCompatActivity {
 
 
     // ---------------------- This stuff is used for the top-right dropdown menu
+    // Presents the menu if the menu button is clicked in the top right
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_screen_menu, menu);
         return true;
     }
 
+    // Declares the event handlers for the various menu options
     @SuppressLint("NonConstantResourceId")
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -146,7 +155,7 @@ public class MenuScreen extends AppCompatActivity {
     }
     // ---------------------- END stuff used for top-right dropdown menu
 
-    //TODO: This might or might not be used, we might have to do some clean-up when the menu logout button is pressed.
+    //This might or might not be used in the future, we might have to do some clean-up when the menu logout button is pressed.
     public boolean logout(){
         return false;
     }

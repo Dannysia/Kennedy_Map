@@ -19,10 +19,14 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 
+/**
+ * DrawableSurfaceView is the UI element that is placed on the Path Screen to display the path that is algorithmically drawn
+ */
 public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     private long totalElapsedTime = 0;
     private AnimationThread animThread;
 
+    // Paint variables for the shapes drawn on screen
     private Paint openNodePaint;
     private Paint closedNodePaint;
     private Paint pathNodePaint;
@@ -32,19 +36,24 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
 
     private int currentFloor = 0;
 
+    // Used for scaling the bitmap to fit the current screen size
     private float[] transMatrix = new float[6];
     private Rect boundaryRect;
 
-    public boolean showDebugBorder = false;
+    public boolean showDebugBorder = false; // For debug
 
     private ArrayList<ArrayList<AnimationCMD>> CMDs = new ArrayList<>();
 
+    /**
+     * Private inner data storage class for DrawNodes
+     */
     private static class DrawNode{
         private final float x;
         private final float y;
         private final NodeType nodeType;
         private final float radius;
 
+        // All variables set in the Constructor
         DrawNode(float x, float y, NodeType nodeType, float radius){
             this.x = x;
             this.y = y;
@@ -52,23 +61,24 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
             this.radius = radius;
         }
 
+        // Getters for the DrawNode data
         public float getX() {
             return x;
         }
-
         public float getY() {
             return y;
         }
-
         public NodeType getNodeType() {
             return nodeType;
         }
-
         public float getRadius() {
             return radius;
         }
     }
 
+    /**
+     * Private inner class for the abstraction of our Animation commands
+     */
     private static class AnimationCMD {
         public DrawNode drawNode;
         private AnimationCmdType cmdType;
@@ -100,20 +110,29 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         }
     }
 
+    /**
+     * Constructor for the DrawableSurfaceView, called when the Path Screen is opened
+     * @param context The context of the current screen
+     * @param attrs The attributes set by the XML file
+     */
     public DrawableSurfaceView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(context, attrs); // Required for initialization by XML
 
-        //This allows an image view behind to show through
+        //This allows an image view behind to show through - mess with this later to possibly allow for zooming
         this.setZOrderOnTop(true);
-        getHolder().setFormat(PixelFormat.TRANSPARENT);
 
+        getHolder().setFormat(PixelFormat.TRANSPARENT);
         getHolder().addCallback(this);
 
+        // Start thread
         initPaints();
         animThread = new AnimationThread(getHolder(), this);
-        //setFocusable(true);
     }
 
+    /**
+     * Scales the background bitmap to the appropriate dynamic size
+     * @param boundaryBitmap The path bitmap
+     */
     public void initSize(Bitmap boundaryBitmap){
         float imageBmpScale = Math.min((float) this.getMeasuredWidth() / boundaryBitmap.getWidth(), (float) this.getMeasuredHeight() / boundaryBitmap.getHeight());
 
@@ -132,6 +151,11 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
 
     }
 
+    /**
+     * Scales the node X and node Y to the current scaling we have, and convert it to a DrawNode
+     * @param node The PathNode whose X and Y need scaled to become a DrawNode
+     * @return A DrawNode, ready to be drawn
+     */
     private DrawNode pathNodeToDrawNode(PathNode node){
         return new DrawNode(
                 (node.getX() * transMatrix[TransMatrixID.Scale] + transMatrix[TransMatrixID.xOffset]),
@@ -161,6 +185,10 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         CMDs.get(floor).add(cmd);
     }
 
+    /**
+     * Adds a clear in the path drawing animation command queue
+     * @param delayInMillis The amount of waiting in milliseconds before running clear
+     */
     public void clearCMD(int delayInMillis){
         AnimationCMD cmd = new AnimationCMD(null, delayInMillis, AnimationCmdType.CLEAR);
 
@@ -169,6 +197,10 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         CMDs.get(2).add(cmd);
     }
 
+    /**
+     * Adds a pause in the path drawing animation command queue
+     * @param delayInMillis The amount of waiting in milliseconds
+     */
     public void waitCMD(int delayInMillis){
         AnimationCMD cmd = new AnimationCMD(null, delayInMillis, AnimationCmdType.WAIT);
 
@@ -177,10 +209,18 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         CMDs.get(2).add(cmd);
     }
 
+    /**
+     * Used to change the floor that a node is drawn on, corrected with a negative one
+     * @param floor The floor the node is to be drawn on
+     */
     public void changeFloorCMD(int floor){
         currentFloor = floor - 1;
     }
 
+    /**
+     * Used to draw nodes to the canvas and display them in an animated fashion
+     * @param canvas The canvas contained within the DrawableSurfaceView
+     */
     private void renderNodes(Canvas canvas){
         for (int cmdIndex = 0; cmdIndex < CMDs.get(currentFloor).size(); cmdIndex++){
             if (CMDs.get(currentFloor) != null) {
@@ -249,6 +289,10 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         while (CMDs.size() < 3) CMDs.add(new ArrayList<>());
     }
 
+    /**
+     * Draws shapes to the current canvas as needed
+     * @param canvas The canvas containing the drawn shapes
+     */
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
@@ -266,18 +310,24 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         }
     }
 
-
+    /**
+     * Starts animation thread when the activity is started
+     * @param holder The surfaceview containing the canvas
+     */
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         animThread.setRunning(true);
         animThread.start();
     }
 
+    // Unneeded for our application
     @Override
-    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) { }
 
-    }
-
+    /**
+     * Called automatically when the user leaves the activity, to close the open thread
+     * @param holder The surfaceView containing the canvas
+     */
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
         boolean retying = true;
@@ -292,13 +342,23 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         }
     }
 
+    /**
+     * Required function to handle touch events, which aren't needed for this view
+     * @param me The motionevent captured
+     * @return False, since we don't capture the motion event and we wish to leave it to other elements
+     */
     @Override
     public boolean onTouchEvent(MotionEvent me){
         return false;
     }
 
+
     // Change these to change what is drawn
+    /**
+     * Private function to initialize the paints that nodes use to drawn themselves to the canvas
+     */
     private void initPaints(){
+
         // Debug paints
         openNodePaint = new Paint();
         openNodePaint.setStyle(Paint.Style.STROKE);
@@ -321,7 +381,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         barrierNodePaint.setAlpha(127);
         barrierNodePaint.setColor(Color.rgb(242,90,48));
 
-        // Real stuff
+        // Real node paints
         pathNodePaint = new Paint();
         pathNodePaint.setStyle(Paint.Style.STROKE);
         pathNodePaint.setStrokeWidth(10);

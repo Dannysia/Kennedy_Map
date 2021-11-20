@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class contains static methods which are used for input validation around our app
+ */
 public class InputValidation {
 
     /**

@@ -27,12 +27,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class encapsulates all API interaction our app needs.
+ */
 public class DatabaseManager {
     private static DatabaseManager databaseManager = null;
     private DatabaseManager(){}
 
+    // Our endpoint
     private final String ENDPOINT = "http://eccs3421.siatkosky.net:3421";
 
+    /**
+     * Singleton instance getter function
+     * @return The one and only instance
+     */
     public static DatabaseManager getInstance(){
         if(databaseManager==null){
             databaseManager = new DatabaseManager();
@@ -140,6 +148,7 @@ public class DatabaseManager {
     public void loginPageLogin(Activity currentScreen, EditText emailInput, EditText passwordInput, ArrayList<Room> allRooms){
         String authenticationEndpoint =ENDPOINT+"/login"; // 1. Endpoint
         JSONObject requestBody=null;
+        // Put items in the JSON object
         try {
             requestBody = new JSONObject();
             requestBody.put("email", emailInput.getText().toString());
@@ -202,6 +211,7 @@ public class DatabaseManager {
     public void loginPageResetPassword(Activity currentScreen, TextView emailPasswordResetEditText){
         String authenticationEndpoint =ENDPOINT+"/account/password/forgot"; // 1. Endpoint
         JSONObject requestBody=null;
+        // Put items in the JSON object
         try {
             requestBody = new JSONObject();
             requestBody.put("email", emailPasswordResetEditText.getText().toString());
@@ -258,6 +268,7 @@ public class DatabaseManager {
                                   EditText firstNameInput, EditText lastNameInput){
         String authenticationEndpoint = ENDPOINT+"/register"; // 1. Endpoint
         JSONObject requestBody=null;
+        // Put items in the JSON object
         try {
             requestBody = new JSONObject();
             requestBody.put("email", emailInput.getText().toString());
@@ -325,6 +336,7 @@ public class DatabaseManager {
     public void reservationPageSelectedRoom(Activity currentScreen, String valueResult, Button pressedButton,
                                             ArrayList<Room> allRooms, ArrayList<Reservation> selectedRoomReservations){
 
+        // Input validation before we contact API
         if(valueResult==null){
             valueResult=pressedButton.getText().toString();
         }
@@ -443,6 +455,7 @@ public class DatabaseManager {
         try {
             requestBody = new JSONObject();
 
+            // Begin time and date string manipulation
             Button selectRoomButton = currentScreen.findViewById(R.id.selectRoomButton);
             Button startTimeButton = currentScreen.findViewById(R.id.startTimeButton);
             Button startDateButton = currentScreen.findViewById(R.id.startDateButton);
@@ -533,12 +546,8 @@ public class DatabaseManager {
                             }catch(Exception e){
                                 successBoolean.set(false);
                             }
-                            //if(successBoolean.get()){
                                 Toast.makeText(currentScreen, "Reservation Successful.", Toast.LENGTH_LONG).show();
-                            //}
-                            //else if(!successBoolean.get()) {
-                            //    Toast.makeText(currentScreen, "Reservation Unsuccessful, try another time.", Toast.LENGTH_LONG).show();
-                            //}
+
                             // Pop-up loading screen
                             LinearLayout loadingLinearLayout = currentScreen.findViewById(R.id.reservationLoadingLinearLayout);
                             loadingLinearLayout.setVisibility(View.GONE);
@@ -627,6 +636,8 @@ public class DatabaseManager {
                                             roomShortName = room.getShortName();
                                         }
                                     }
+
+                                    // Error checking
                                     if(roomShortName.equals("")){
                                         try {
                                             throw new Exception();
@@ -670,6 +681,12 @@ public class DatabaseManager {
         APIRequestQueue.getInstance(currentScreen).addToRequestQueue(jsonObjectRequest);
     }
 
+    /**
+     * This sends a POST request to our API in order for the user to send feedback that we may review.
+     * @param currentScreen The current screen the user is on, this is most likely the menuscreen.
+     * @param currentUser The current user ID that is logged in, may also be the -1 guest ID
+     * @param feedback The feedback to be sent
+     */
     public void sendFeedback(Activity currentScreen, String currentUser, EditText feedback){
         String sendFeedbackEndpoint = ENDPOINT+"/sendFeedback"; // 1. Endpoint
         JSONObject requestBody=null;

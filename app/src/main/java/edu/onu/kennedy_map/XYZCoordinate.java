@@ -2,6 +2,10 @@ package edu.onu.kennedy_map;
 
 import java.io.Serializable;
 
+/**
+ * Data storage class to represent XYZCoordinates, contains 3 variables for X, Y, and Z, and then their respective
+ * getters and setters.
+ */
 public class XYZCoordinate implements Serializable {
     private int x;
     private int y;

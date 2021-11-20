@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
+/**
+ * Handles the bulk of the animation logic for the path screen
+ */
 public class PathFind {
     private final DrawableSurfaceView drawable;
     private final Context context;
@@ -36,6 +39,9 @@ public class PathFind {
         }
     }
 
+    /**
+     * Loads the boundary bitmaps for path finding
+     */
     public void initialize(){
         //Handles reset from previous runs
         nodes.clear();
@@ -77,6 +83,11 @@ public class PathFind {
         //floor1DSV.clearCanvas(1000);
     }
 
+    /**
+     * Sets the node type to boundary if the bitmap is filled, otherwise its an accessible spot
+     * @param boundry The bitmap to check
+     * @param options The options from the bitmap factory we used to load it in
+     */
     private void pathNodePopulate(Bitmap boundry, BitmapFactory.Options options){
         nodes.add(new ArrayList<>());
         for (int i = 0; i < options.outWidth; i++){
@@ -95,6 +106,11 @@ public class PathFind {
         //drawable.clearCMD(2000);
     }
 
+    /**
+     * Used to draw the full path out after getting done with the calculations
+     * @param start The first node in the path
+     * @param end The last node in the path
+     */
     private void reconstructPath( PathNode start, PathNode end){
         PathNode node = end;
         ArrayList<PathNode> path = new ArrayList<>();
@@ -113,7 +129,7 @@ public class PathFind {
         }
 
         for (int i = 0; i < path.size(); i++){
-            //Used to artistically change the path by specifying every nth number of path nodes to render (to use change mod value)
+            //Used to artistically change the path by specifying every nth number of path nodes to render (To use: change mod value)
             if (i % 3 == 0 || i == 0 || i == path.size() - 1){
                 drawable.drawCMD(path.get(i));
                 drawable.waitCMD(1);
@@ -130,7 +146,7 @@ public class PathFind {
         }*/
     }
 
-    //Will be changed to take in start and end rooms (used coordinates for testing)
+    // Takes in the starting room and ending room and calculates, then displays the path.
     public boolean pathFindBetween(Room startRoom, Room endRoom){
         if (startRoom == null || endRoom == null){return false;}
 

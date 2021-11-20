@@ -12,10 +12,18 @@ public class Reservation {
         this.endDateTime=endDateTime;
     }
 
+    /**
+     * Returns the start DateTime string of the reservation
+     * @return DateTime string of start of reservation
+     */
     public String getStartDateTime() {
         return startDateTime;
     }
 
+    /**
+     * Returns the end DateTime string of the reservation
+     * @return DateTime string of end of reservation
+     */
     public String getEndDateTime() {
         return endDateTime;
     }

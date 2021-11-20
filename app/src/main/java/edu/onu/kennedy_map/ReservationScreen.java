@@ -39,6 +39,8 @@ public class ReservationScreen extends AppCompatActivity {
     private AbstractUser authenticatedUser;
     private ArrayList<Room> allRooms;
     private ArrayList<Reservation> selectedRoomReservations = new ArrayList<>();
+
+    // Called when the reservation screen is loaded, initializes variables and UI elements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,6 +175,7 @@ public class ReservationScreen extends AppCompatActivity {
         }
     }
 
+    // Displays a time picker to enter the starting time of the reservation
     public void startTimeButton(View view){
         Button startTimeButton =findViewById(R.id.startTimeButton);
         TextView startHour = findViewById(R.id.startHour);
@@ -180,6 +183,8 @@ public class ReservationScreen extends AppCompatActivity {
         TimePickerFragment newFragment = new TimePickerFragment(startTimeButton,startHour,startMinute);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
+
+    // Displays a date picker to enter the starting date of the reservation
     public void startDateButton(View view){
         Button startDateButton = findViewById(R.id.startDateButton);
         TextView startDay = findViewById(R.id.startDay);
@@ -188,6 +193,8 @@ public class ReservationScreen extends AppCompatActivity {
         DatePickerFragment newFragment = new DatePickerFragment(startDateButton,startDay,startMonth,startYear);
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
+
+    // Displays a time picker to enter the ending time of the reservation
     public void endTimeButton(View view){
         Button endTimeButton = findViewById(R.id.endTimeButton);
         TextView endHour = findViewById(R.id.endHour);
@@ -195,6 +202,8 @@ public class ReservationScreen extends AppCompatActivity {
         TimePickerFragment newFragment = new TimePickerFragment(endTimeButton,endHour,endMinute);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
+
+    // Displays a date picker to enter the ending date of the reservation
     public void endDateButton(View view){
         Button endDateButton = findViewById(R.id.endDateButton);
         TextView endDay = findViewById(R.id.endDay);
@@ -204,6 +213,7 @@ public class ReservationScreen extends AppCompatActivity {
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
+    // Brings up a picker for the user to select a room, which then changes the image and grabs reservations for that room
     public void selectRoomButton(View view){
         Button selectRoomButton = findViewById(R.id.selectRoomButton);
         PickerUI roomPicker = findViewById(R.id.picker_ui_view);
@@ -219,6 +229,7 @@ public class ReservationScreen extends AppCompatActivity {
         roomPicker.slide(0);
     }
 
+    // Closes the picker when the user clicks off of the picker UI element
     public void reservationScreenRoomImageView(View view){
         PickerUI roomPicker = (PickerUI) findViewById(R.id.picker_ui_view);
         if(roomPicker.isPanelShown()){
@@ -237,12 +248,16 @@ public class ReservationScreen extends AppCompatActivity {
             roomPicker.slide();
         }
     }
+
+    // Sends the user back to the menu
     public void backToMenuButton(View view){
         Intent intent1 = new Intent(this, MenuScreen.class);
         intent1.putExtra("user",authenticatedUser);
         intent1.putExtra("rooms",allRooms);
         startActivity(intent1);
     }
+
+    // When the reservation is successfully made, the inputs are cleared.
     public void reserveConfirmButton(View view){
         Button selectRoomButton = findViewById(R.id.selectRoomButton);
 
@@ -296,7 +311,7 @@ public class ReservationScreen extends AppCompatActivity {
     }
     // ---------------------- END stuff used for top-right dropdown menu
 
-    //TODO: This might or might not be used, we might have to do some clean-up when the menu logout button is pressed.
+    //This might or might not be used, we might have to do some clean-up when the menu logout button is pressed.
     public boolean logout(){
         return false;
     }

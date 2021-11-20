@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+/**
+ * Path Screen allows the user to find the shortest path between a starting room and an ending room, and have that path be displayed
+ */
 @SuppressWarnings("unchecked")
 public class PathScreen extends AppCompatActivity {
 
@@ -30,6 +33,8 @@ public class PathScreen extends AppCompatActivity {
     private AbstractUser authenticatedUser;
     private ArrayList<Room> allRooms;
     private boolean showAnimation = false;
+
+    // Called when this screen is first accessed, initializing variables and UI elements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +76,7 @@ public class PathScreen extends AppCompatActivity {
 
     }
 
+    // When the starting room button is pressed, display the picker and wait for the input
     public void pathFindRoomOneButton(View view){
         Button pathFindRoomOneButton = (Button) findViewById(R.id.pathFindRoomOneButton);
         PickerUI startingRoomPicker = (PickerUI) findViewById(R.id.startingRoomPicker);
@@ -82,6 +88,8 @@ public class PathScreen extends AppCompatActivity {
         testButton.setVisibility(View.VISIBLE);
         startingRoomPicker.slide(0);
     }
+
+    // When the ending room button is pressed, display the picker and wait for the input
     public void pathFindRoomTwoButton(View view){
         Button pathFindRoomTwoButton = (Button) findViewById(R.id.pathFindRoomTwoButton);
         PickerUI endingRoomPicker = (PickerUI) findViewById(R.id.endingRoomPicker);
@@ -93,6 +101,8 @@ public class PathScreen extends AppCompatActivity {
         testButton.setVisibility(View.VISIBLE);
         endingRoomPicker.slide(0);
     }
+
+    // Closes any open picker sliders
     public void closeSliders(View view){
         PickerUI startingRoomPicker = (PickerUI)findViewById(R.id.startingRoomPicker);
         PickerUI endingRoomPicker = (PickerUI)findViewById(R.id.endingRoomPicker);
@@ -106,6 +116,7 @@ public class PathScreen extends AppCompatActivity {
         testButton.setVisibility(View.GONE);
     }
 
+    // Initiates path finding when the 'Show me the Path!' button is pressed.
     public void pathFindCalculateButton(View view){
         // Using the name of the selected rooms in the buttons, get the Room object from the arraylist and pass to algorithm
         Button pathFindRoomOneButton = findViewById(R.id.pathFindRoomOneButton);
@@ -137,32 +148,37 @@ public class PathScreen extends AppCompatActivity {
 
         pathFind.initialize();
 
-
-        //TODO change from logd to user GUI popup?
-        //Pathfind returns true if a path was found and false if there is no path
+        //Pathfind returns true if a path was found and false if there is no path, debug only
         //this can be used to trigger a message to inform the user (especially if we let the user pick a point themselves)
+        /*
         if(pathFind.pathFindBetween(startRoom, endRoom)){
             Log.d("PathFind", "debugClick: Path Found!");
         } else {
             Log.d("PathFind", "debugClick: Path NOT Found!");
         }
+
+         */
     }
+    // Display the first floor of the path finding
     public void pathFloorOneRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_1);
         floorDSV.changeFloorCMD(1);
     }
+    // Display the second floor of the path finding
     public void pathFloorTwoRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_2);
         floorDSV.changeFloorCMD(2);
     }
+    // Display the third floor of the path finding
     public void pathFloorThreeRadioButton(View view){
         ImageView pathFindImageView = findViewById(R.id.pathFindImageView);
         pathFindImageView.setImageResource(R.drawable.floor_3);
         floorDSV.changeFloorCMD(3);
     }
 
+    // When this switch is on, display the debug animations, current the switch is hidden in the XML
     public void animationSwitch(View view){
         SwitchCompat animationSwitch = findViewById(R.id.animationSwitch);
         if(animationSwitch.isChecked()){
@@ -181,8 +197,6 @@ public class PathScreen extends AppCompatActivity {
         return true;
     }
 
-
-    // TODO: Add option to return to Menu screen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             // Add cases with the buttonID as you need more menu options

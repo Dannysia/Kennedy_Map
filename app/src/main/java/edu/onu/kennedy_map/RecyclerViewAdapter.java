@@ -144,7 +144,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
     }
 
-    // Required methods for RecyclerView
+    // Required methods for RecyclerView, all pretty self-explanatory
     @NonNull
     @Override
     public RecyclerAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoginScreen extends AppCompatActivity {
 
 	private ArrayList<Room> allRooms = new ArrayList<>();
+
+	// When the app is first opened, the proper screen is displayed and various initializations are done
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,24 +54,30 @@ public class LoginScreen extends AppCompatActivity {
 		signupLayout.setVisibility(View.GONE);
 		forgotPasswordLayout.setVisibility(View.GONE);
 
-		// I am leaving this here
+		// Get room info, present loading screen until room info successfully arrives
 		DatabaseManager.getInstance().getRooms(this,allRooms);
 	}
 
 	// This is the functionality when they first enter the app.
 	// ----------------------------------------------- Title Portion -----------------------------------------------
+
+	// When the initial Sign-In button is pressed, they are shown the sign-in display
 	public void proceedToSigninButton(View view){
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signinSignupLayout.setVisibility(View.GONE);
 		signinLayout.setVisibility(View.VISIBLE);
 	}
+
+	// When the initial Sign-Up button is pressed, they are shown the sign-up display
 	public void proceedToSignupButton(View view){
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signupLayout);
 		signinSignupLayout.setVisibility(View.GONE);
 		signupLayout.setVisibility(View.VISIBLE);
 	}
+
+	// Pressing the guest button takes them to the main menu screen, necessary info is passed
 	public void guestButton(View view){
 		Intent intent = new Intent(this, MenuScreen.class);
 		GuestUser guestUser = (GuestUser) new ConcreteGuestUserCreator().createUser("GUEST",-1);
@@ -79,8 +87,9 @@ public class LoginScreen extends AppCompatActivity {
 	}
 	// ------------------------------------------- END Title Portion -----------------------------------------------
 
-	// This is the functionality when they press Sign-In
 	// ----------------------------------------------- Sign-In Portion -----------------------------------------------
+	// When the Sign-In button is pressed on the sign-in display, their input is validated before being checked by the API
+	// If the API gives the OK, then they are transported to the main menu screen.
 	public void signinButton(View view){
 		EditText emailLoginEditText		= (EditText)findViewById(R.id.emailLoginEditText);
 		EditText passwordLoginEditText	= (EditText)findViewById(R.id.passwordLoginEditText);
@@ -98,12 +107,15 @@ public class LoginScreen extends AppCompatActivity {
 		DatabaseManager.getInstance().loginPageLogin(this,emailLoginEditText,passwordLoginEditText,allRooms);
 	}
 
+	// Presents the forgot password display to the user
 	public void forgotPasswordButton(View view){
 		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
 		signinLayout.setVisibility(View.GONE);
 		forgotPasswordLayout.setVisibility(View.VISIBLE);
 	}
+
+	// On any of the displays, the user is then presented with initial display
 	public void returnToTitleButton(View view){
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
@@ -112,8 +124,9 @@ public class LoginScreen extends AppCompatActivity {
 	}
 	// ------------------------------------------- END Sign-In Portion -----------------------------------------------
 
-	// This is the functionality when they press Reset Password from the sign-in screen
 	// ----------------------------------------------- Password Reset Portion ----------------------------------------
+	// When the user enters the necessary information for password resets, their input is validated, then sent to the API
+	// The API then sends them an email if their account actually exists, no hinting if the account exists is presented app-side
 	public void resetPasswordButton(View view){
 		//Make sure email is not blank
 		EditText emailPasswordResetEditText = (EditText) findViewById(R.id.emailPasswordResetEditText);
@@ -125,10 +138,10 @@ public class LoginScreen extends AppCompatActivity {
 			Toast.makeText(LoginScreen.this, "Enter a valid email address", Toast.LENGTH_LONG).show();
 			return;
 		}
-
 		DatabaseManager.getInstance().loginPageResetPassword(this,emailPasswordResetEditText);
-
 	}
+
+	// Returns the user to the sign up display
 	public void returnToSigninButton(View view){
 		LinearLayout forgotPasswordLayout = (LinearLayout) findViewById(R.id.forgotPasswordLayout);
 		LinearLayout signinLayout = (LinearLayout) findViewById(R.id.signinLayout);
@@ -138,8 +151,9 @@ public class LoginScreen extends AppCompatActivity {
 
 	// ------------------------------------------- END Password Reset Portion ----------------------------------------
 
-	// This is the functionality when they press Sign-Up
 	// ----------------------------------------------- Sign-Up Portion -----------------------------------------------
+	// When the user is on the sign-up dispaly and they press sign-up, their input is validated before being sent to the API
+	// When the API returns the OK, they are returned to the title screen to login with their new information
 	public void signupButton(View view){
 
 		EditText firstNameSignUpEditText        = (EditText)findViewById(R.id.firstNameSignUpEditText);
@@ -167,6 +181,8 @@ public class LoginScreen extends AppCompatActivity {
 
 		DatabaseManager.getInstance().loginPageRegister(this,emailSignupEditText,passwordSignupEditText,firstNameSignUpEditText,lastNameSignUpEditText);
 	}
+
+	// Also returns the user to the title display
 	public void returnToTitleButton2(View view){
 		LinearLayout signinSignupLayout = (LinearLayout) findViewById(R.id.signinSignupLayout);
 		LinearLayout signupLayout = (LinearLayout) findViewById(R.id.signinLayout);

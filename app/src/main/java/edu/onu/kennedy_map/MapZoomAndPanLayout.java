@@ -37,6 +37,11 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
     // 2 = zooming
     private int actionID = 0;
 
+    /**
+     * Android OS detects the pinch and pan finger movements, then tells us
+     * @param scaleGestureDetector The Android scale gesture detector
+     * @return True, to let the Android OS know that we handled the event
+     */
     @Override
     public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
         double scaleFactor = scaleGestureDetector.getScaleFactor();
@@ -49,12 +54,13 @@ public class MapZoomAndPanLayout extends FrameLayout implements ScaleGestureDete
         return true;
     }
 
+    // Unneeded for this UI element
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {return true; }
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) { }
 
-    // Looked up the warning, it doesn't really matter so don't worry about it
+    // Initializes the possible event handlers for the events we want to handle, such as panning and zooming
     @SuppressLint("ClickableViewAccessibility")
     private void init(Context context) {
         final ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(context, this);

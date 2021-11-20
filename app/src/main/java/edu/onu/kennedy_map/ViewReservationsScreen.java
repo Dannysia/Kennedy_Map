@@ -28,6 +28,8 @@ public class ViewReservationsScreen extends AppCompatActivity {
 
     private AbstractUser authenticatedUser;
     private ArrayList<Room> allRooms;
+
+    // Called when the screen is entered, initializes variables and UI elements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +51,7 @@ public class ViewReservationsScreen extends AppCompatActivity {
                 (RegisteredUser) authenticatedUser,recyclerViewAdapter,allRooms);
     }
 
+    // Returns the user to the reservation screen
     public void returnToReservationScreenButton(View view){
         Intent intent1 = new Intent(this, ReservationScreen.class);
         intent1.putExtra("user",authenticatedUser);

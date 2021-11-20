@@ -4,6 +4,9 @@ import android.graphics.Canvas;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+/**
+ * This class handles presenting the path animation on the UI, which utilizes another thread
+ */
 public class AnimationThread extends Thread{
     private int FPS = 60;
     private double avgFPS;
@@ -19,10 +22,17 @@ public class AnimationThread extends Thread{
         this.view = view;
     }
 
+    /**
+     * Function used to set the running boolean for the thread
+     * @param running The thread running boolean
+     */
     public void setRunning(boolean running){
         this.running = running;
     }
 
+    /**
+     * Handles thread running behavior for the animations
+     */
     @Override
     public void run() {
         long startTime,timeMillis,waitTime, totalTime = 0;

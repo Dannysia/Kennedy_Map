@@ -2,6 +2,9 @@ package edu.onu.kennedy_map;
 
 import java.util.ArrayList;
 
+/**
+ * A PathNode is a position on the bitmap that can be used for path finding
+ */
 public class PathNode {
 
     private final int x;
@@ -14,6 +17,7 @@ public class PathNode {
 
     private PathNode cameFrom;
 
+    // Initially unassigned node type
     private NodeType nodeType = NodeType.UNASSIGNED;
     public ArrayList<PathNode> neighbors = new ArrayList<>();
 
@@ -44,6 +48,7 @@ public class PathNode {
         return z;
     }
 
+    // Assigns a score to a potential path, whereas the lowest score is then the shortest path
     private int ManhattanApproximation(PathNode pathNodeA, PathNode pathNodeB) {
         //using Manhattan Approximation to determine Classical H value
         return Math.abs(pathNodeA.getX() - pathNodeB.getX()) + Math.abs(pathNodeA.getY() - pathNodeB.getY()) + Math.abs(pathNodeA.getZ() - pathNodeB.getZ());
