@@ -48,12 +48,23 @@ public class PathNode {
         return z;
     }
 
-    // Assigns a score to a potential path, whereas the lowest score is then the shortest path
+    /**
+     * Heuristics approximation to determine distance between 2 nodes (Uses Manhattan which is the sum of x, y, and z distance)
+     * @param pathNodeA start node to consider
+     * @param pathNodeB destination node to consider
+     * @return distance between
+     */
     private int ManhattanApproximation(PathNode pathNodeA, PathNode pathNodeB) {
         //using Manhattan Approximation to determine Classical H value
         return Math.abs(pathNodeA.getX() - pathNodeB.getX()) + Math.abs(pathNodeA.getY() - pathNodeB.getY()) + Math.abs(pathNodeA.getZ() - pathNodeB.getZ());
     }
 
+    /**
+     * Heuristics approximation to determine distance between 2 nodes (Uses Pythagorean which is the exact x, y, and z distance)
+     * @param pathNodeA start node to consider
+     * @param pathNodeB destination node to consider
+     * @return distance between
+     */
     private float PythagoreanApproximation(PathNode pathNodeA, PathNode pathNodeB) {
         //using Pythagorean Approximation to determine Classical H value
         return (float) Math.sqrt(Math.pow(pathNodeA.getX() - pathNodeB.getX(), 2) + Math.pow(pathNodeA.getY() - pathNodeB.getY(), 2) +Math.pow(pathNodeA.getZ() - pathNodeB.getZ(), 2));
@@ -104,6 +115,10 @@ public class PathNode {
         return cameFrom;
     }
 
+    /**
+     * The node that lead to this node used in determining the path
+     * @param cameFrom The node that lead to this node
+     */
     public void setCameFrom(PathNode cameFrom) {
         this.cameFrom = cameFrom;
     }
@@ -116,6 +131,10 @@ public class PathNode {
         this.nodeType = nodeType;
     }
 
+    /**
+     * Stores all valid traversable nodes that are no more than 1 unit away along x, y, z or a combination of 2 of the axis
+     * @param nodes the nodes that have been loaded that make up the building
+     */
     public void updateNeighbors(ArrayList<ArrayList<ArrayList<PathNode>>> nodes){
         for (int xOffset = -1; xOffset <= 1; xOffset++){
             for (int yOffset = -1; yOffset <= 1; yOffset++){

@@ -27,11 +27,17 @@ public class PathFind {
         this.drawable = drawable;
     }
 
+    /**
+     * Sets whether the solving animations should be rendered or not
+     * @param animShouldShow
+     */
     public void toggleAnimVisibility(boolean animShouldShow){
         this.animShouldShow = animShouldShow;
     }
 
-    //Priority Queue Comparator to get the least fScore
+    /**
+     * Priority Queue Comparator to get the least fScore
+     */
     private class NodePriorityComparator implements Comparator<PathNode>{
         @Override
         public int compare(PathNode a, PathNode b){
@@ -68,33 +74,20 @@ public class PathFind {
 
         Bitmap boundaryBitMap5 = BitmapFactory.decodeResource(context.getResources(), R.raw.boundary_floor_3a, options);
         pathNodePopulate(boundaryBitMap5, options);
-
-        //Populates the neighbors for all nodes (can be done as needed for added efficiency)
-        /*for(ArrayList<ArrayList<PathNode>> height : nodes){
-            for(ArrayList<PathNode> column : height) {
-                for (PathNode node : column) {
-                    if (node.getNodeType() != NodeType.BARRIER) {
-                        node.updateNeighbors(nodes);
-                    }
-                }
-            }
-        }*/
-
-        //floor1DSV.clearCanvas(1000);
     }
 
     /**
-     * Sets the node type to boundary if the bitmap is filled, otherwise its an accessible spot
-     * @param boundry The bitmap to check
-     * @param options The options from the bitmap factory we used to load it in
+     * Sets the node type to boundary if the bitmap pixel under consideration is colored black, otherwise its a traversable spot
+     * @param boundary The bitmap to check
+     * @param options The options from the bitmap factory used to load it in
      */
-    private void pathNodePopulate(Bitmap boundry, BitmapFactory.Options options){
+    private void pathNodePopulate(Bitmap boundary, BitmapFactory.Options options){
         nodes.add(new ArrayList<>());
         for (int i = 0; i < options.outWidth; i++){
             nodes.get(nodes.size() - 1).add(new ArrayList<>());
             for (int j = 0; j < options.outHeight; j++){
                 nodes.get(nodes.size() - 1).get(i).add(j, new PathNode(i, j, nodes.size() - 1));
-                nodes.get(nodes.size() - 1).get(i).get(j).setNodeType(boundry.getColor(i, j).equals(Color.valueOf(Color.BLACK)) ? NodeType.BARRIER : NodeType.UNASSIGNED);
+                nodes.get(nodes.size() - 1).get(i).get(j).setNodeType(boundary.getColor(i, j).equals(Color.valueOf(Color.BLACK)) ? NodeType.BARRIER : NodeType.UNASSIGNED);
 
                 //Can be uncommented to see the boundary initialize (must uncomment the clear at end of function to use)
                 /*if (nodes.get(nodes.size() - 1).get(i).get(j).getNodeType() == NodeType.BARRIER) {
@@ -107,7 +100,7 @@ public class PathFind {
     }
 
     /**
-     * Used to draw the full path out after getting done with the calculations
+     * Used to render the path between the start and end calculated by the pathfinding algorithm
      * @param start The first node in the path
      * @param end The last node in the path
      */
@@ -146,7 +139,12 @@ public class PathFind {
         }*/
     }
 
-    // Takes in the starting room and ending room and calculates, then displays the path.
+    /**
+     * A* pathfinding algorithm
+     * @param startRoom The starting room location
+     * @param endRoom The ending room location
+     * @return will return false if no path was found and true otherwise
+     */
     public boolean pathFindBetween(Room startRoom, Room endRoom){
         if (startRoom == null || endRoom == null){return false;}
 

@@ -77,7 +77,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     }
 
     /**
-     * Private inner class for the abstraction of our Animation commands
+     * Animation command object that is used to store CMD data in the queue for rendering
      */
     private static class AnimationCMD {
         public DrawNode drawNode;
@@ -111,7 +111,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     }
 
     /**
-     * Constructor for the DrawableSurfaceView, called when the Path Screen is opened
+     * Constructor for the DrawableSurfaceView, called when the Path Screen is opened, makes sure the xml object behind is visible
      * @param context The context of the current screen
      * @param attrs The attributes set by the XML file
      */
@@ -152,7 +152,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     }
 
     /**
-     * Scales the node X and node Y to the current scaling we have, and convert it to a DrawNode
+     * Scales the node X and node Y to the current scaling we have, and converts it to a DrawNode
      * @param node The PathNode whose X and Y need scaled to become a DrawNode
      * @return A DrawNode, ready to be drawn
      */
@@ -164,6 +164,10 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
                 transMatrix[TransMatrixID.Scale] / 4);
     }
 
+    /**
+     * An object that is part of a CMD that stores information about how a node should be drawn
+     * @param node The node with relevant positional and type information to be drawn
+     */
     public void drawCMD(PathNode node){
         AnimationCMD cmd = new AnimationCMD(pathNodeToDrawNode(node), 0, AnimationCmdType.DRAW);
         int floor;
@@ -187,7 +191,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
 
     /**
      * Adds a clear in the path drawing animation command queue
-     * @param delayInMillis The amount of waiting in milliseconds before running clear
+     * @param delayInMillis The amount of time to wait in milliseconds before clearing
      */
     public void clearCMD(int delayInMillis){
         AnimationCMD cmd = new AnimationCMD(null, delayInMillis, AnimationCmdType.CLEAR);
@@ -199,7 +203,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
 
     /**
      * Adds a pause in the path drawing animation command queue
-     * @param delayInMillis The amount of waiting in milliseconds
+     * @param delayInMillis The amount of time to wait in milliseconds before the next draw CMD will run
      */
     public void waitCMD(int delayInMillis){
         AnimationCMD cmd = new AnimationCMD(null, delayInMillis, AnimationCmdType.WAIT);
@@ -283,6 +287,9 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         }
     }
 
+    /**
+     * Used as a place to update variables per tick
+     */
     public void update(){
         //anything that runs per tick that isn't a drawcall (the number of drawcalls = the number of times update runs)
         Log.d("Rendering", "update: happened");
@@ -387,7 +394,7 @@ public class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Ca
         pathNodePaint.setStrokeWidth(10);
         pathNodePaint.setAntiAlias(true);
         //pathNodePaint.setAlpha(127);
-        pathNodePaint.setColor(Color.rgb(176,38,255));
+        pathNodePaint.setColor(Color.rgb(255,0,0));
 
         startNodePaint = new Paint();
         startNodePaint.setStyle(Paint.Style.FILL_AND_STROKE);
