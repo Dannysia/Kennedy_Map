@@ -34,8 +34,8 @@ public class DatabaseManager {
     private static DatabaseManager databaseManager = null;
     private DatabaseManager(){}
 
-    // Our endpoint
-    private final String ENDPOINT = "http://eccs3421.siatkosky.net:3421";
+    // Our endpoint (defunct, removed 4_22_2023)
+    private final String ENDPOINT = "";
 
     /**
      * Singleton instance getter function
